@@ -12,7 +12,7 @@ try:
 except ImportError:
     import simplejson as json
 import httplib
-import cmd
+import urllib
 from optparse import OptionParser
 from xml.etree import ElementTree
 from pprint import pprint
@@ -23,34 +23,47 @@ class RestfulError(Exception):
 class InvalidRelationType(Exception):
     pass
 
+PARTS_OF_SPEECH = ['noun', 'verb', 'adjective', 'adverb', 'idiom', 'article', 'abbreviation', 'preposition', 'prefix', 'interjection','suffix', 'conjunction', 'adjective_and_adverb', 'noun_and_adjective',  'noun_and_verb_transitive', 'noun_and_verb', 'past_participle', 'imperative', 'noun_plural', 'proper_noun_plural', 'verb_intransitive', 'proper_noun', 'adjective_and_noun',   'imperative_and_past_participle', 'pronoun', 'verb_transitive', 'noun_and_verb_intransitive', 'adverb_and_preposition','proper_noun_posessive','noun_posessive']
+
+FORMAT_JSON = "json"
+FORMAT_XML = "xml"
+
+def format_url_args(path, **kws):
+    if kws:
+        path += "?%s" % urllib.urlencode(kws)
+    return path
+
 class Wordnik(object):
+    """ Wordnik API object """
 
-    FORMAT_JSON = "json"
-    FORMAT_XML = "xml"
-
-    def __init__(self, api_key, format=FORMAT_JSON):
+    def __init__(self, api_key, default_format=FORMAT_JSON):
         self.api_key = api_key
-        self.format = format
+        self.format = default_format
+	self.formatters = {
+			   FORMAT_JSON: json.loads,
+			   FORMAT_XML: ElementTree.fromstring
+			  }
 
-    def _make_request(self, request_uri, additional_headers={}):
+    def _make_request(self, request_uri, additional_headers={}, format=None):
+	""" make a request to the wordnik server """
+
+        format = format or self.format
         con = httplib.HTTPConnection(BASE_HOST)
         headers = {"api_key": self.api_key}
         headers.update(additional_headers)
-        con.request("GET", request_uri, headers=headers)
+        con.request("GET", request_uri % format, headers=headers)
         result = con.getresponse()
-        result_string = result.read()
-        if self.format == Wordnik.FORMAT_JSON:
-            retval = json.loads(result_string)
-        elif self.format == Wordnik.FORMAT_XML:
-            retval = ElementTree.fromstring(result_string)
+
         if result.status != httplib.OK:
             try:
                 raise RestfulError(retval["message"])
             except (TypeError, ), error:
                 raise RestfulError(retval.find("message").text)
-        return retval
 
-    def word(self, word):
+
+        return self.formatters[format](result.read())
+
+    def word(self, word, format=None):
         """Returns a word from wordnik if it is in the corpus.
 
         Sample Response::
@@ -67,10 +80,10 @@ class Wordnik(object):
         Returns:
             The JSON or XML response from wordnik
         """
-        request_uri = "/api/word.%s/%s" % (self.format, word, )
-        return self._make_request(request_uri)
+        request_uri = "/api/word.%%s/%s" % word
+        return self._make_request(request_uri, format=format)
 
-    def definitions(self, word):
+    def definitions(self, word, count=None, partOfSpeech=None, format=None):
         """Returns the definitions from wordnik if the requested word is in the corpus.
 
         Sample Response::
@@ -99,14 +112,16 @@ class Wordnik(object):
         Params:
             word : str
                 The requested word
-
         Returns:
             The JSON or XML response from wordnik
         """
-        request_uri = "/api/word.%s/%s/definitions" % (self.format, word, )
-        return self._make_request(request_uri)
 
-    def frequency(self, word):
+        request_uri = "/api/word.%%s/%s/definitions" % (word )
+	request_uri = format_url_args(request_uri, count=count, partOfSpeech=partOfSpeech)
+
+        return self._make_request(request_uri, format=format)
+
+    def frequency(self, word, format=None):
         """Returns the usage frequency of a word in the wordnik corpus.
 
         Sample Response::
@@ -130,10 +145,10 @@ class Wordnik(object):
         Returns:
             The JSON or XML response from wordnik
         """
-        request_uri = "/api/word.%s/%s/frequency" % (self.format, word, )
-        return self._make_request(request_uri)
+        request_uri = "/api/word.%%s/%s/frequency" % (word, )
+        return self._make_request(request_uri, format=format)
 
-    def examples(self, word):
+    def examples(self, word, format=None):
         """Returns example usages of a word in the wordnik corpus.
 
         Sample Response::
@@ -164,10 +179,10 @@ class Wordnik(object):
         Returns:
             The JSON or XML response from wordnik
         """
-        request_uri = "/api/word.%s/%s/examples" % (self.format, word, )
-        return self._make_request(request_uri)
+        request_uri = "/api/word.%%s/%s/examples" % ( word, )
+        return self._make_request(request_uri, format=format)
 
-    def suggest(self, fragment, count=1, start_at=0):
+    def suggest(self, fragment, count=1, start_at=0, format=None):
         """Returns a word from wordnik if it is in the corpus.
 
         Sample Response::
@@ -202,15 +217,11 @@ class Wordnik(object):
         Returns:
             The JSON or XML response from wordnik
         """
-        request_uri = "/api/suggest.%s/%s" % (self.format, fragment, )
-        headers = {
-            "api_key": self.api_key,
-            "count": count,
-            "startAt": start_at
-            }
-        return self._make_request(request_uri, headers)
+        request_uri = "/api/suggest.%%s/%s" % (fragment)
+	request_uri = format_url_args(request_uri, count=count, startAt=start_at)
+        return self._make_request(request_uri, format=format)
 
-    def word_of_the_day(self):
+    def word_of_the_day(self, format=None):
         """Fetches the *word of the day* from wordnik
 
         Sample Response::
@@ -234,10 +245,10 @@ class Wordnik(object):
         Returns:
             The JSON or XML response from wordnik
         """
-        request_uri = "/api/wordoftheday.%s" % (self.format, )
-        return self._make_request(request_uri)
+        request_uri = "/api/wordoftheday.%s"
+        return self._make_request(request_uri, format=format)
 
-    def random_word(self, has_definition=False):
+    def random_word(self, has_definition=False, format=None):
         """Fetch a random word from the Alpha Corpus.
 
         >>> import wordnik
@@ -247,10 +258,10 @@ class Wordnik(object):
         {'word': 'smatch', 'id': 96660}
         >>>
         """
-        request_uri = "/api/words.%s/randomWord?hasDictionaryDef=%s" % (self.format, has_definition, )
-        return self._make_request(request_uri)
+        request_uri = "/api/words.%%s/randomWord?hasDictionaryDef=%s" % ( has_definition, )
+        return self._make_request(request_uri, format=format)
 
-    def phrases(self, word, count=10):
+    def phrases(self, word, count=10, format=None):
         """Fetch bi-gram phrases containing a word.
 
         Sample Response:
@@ -264,10 +275,10 @@ class Wordnik(object):
              </bigram>
           </bigrams>
         """
-        request_uri = "/api/word.%s/%s/phrases?count=%s" % (self.format, word, count, )
-        return self._make_request(request_uri)
+        request_uri = "/api/word.%%s/%s/phrases" % (word)
+        return self._make_request(request_uri, count=count, format=format)
 
-    def related(self, word, type=None):
+    def related(self, word, type=None, format=None):
         """Fetch related words for this word
 
         Sample Response:
@@ -286,12 +297,12 @@ class Wordnik(object):
         """
         all_types = [None, "synonym", "antonym", "form", "equivalent", "hyponym", "variant"]
         if type in all_types:
-            request_uri = "/api/word.%s/%s/related?type=%s" % (self.format, word, type, )
-            return self._make_request(request_uri)
+            request_uri = "/api/word.%%s/%s/related?type=%s" % (word, type, )
+            return self._make_request(request_uri, format=format)
         else:
             raise InvalidRelationType()
 
-    def punctuation(self, word):
+    def punctuation(self, word, format=None):
         """Fetch a word's punctuation factor.
 
           Sample Response:
@@ -303,8 +314,8 @@ class Wordnik(object):
                <wordId>567925</wordId>
             </punctuationFactor>
         """
-        request_uri = "/api/word.%s/%s/punctuationFactor" % (self.format, word, )
-        return self._make_request(request_uri)
+        request_uri = "/api/word.%%s/%s/punctuationFactor" % (word, )
+        return self._make_request(request_uri, format=format)
 
 def main(args):
 
