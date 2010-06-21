@@ -29,6 +29,34 @@ FORMAT_JSON = "json"
 FORMAT_XML = "xml"
 
 
+#class Word(object):
+#    def __init__(self, client, worddata):
+#        self.id = worddata.get('id')
+#        self.wordstring = worddata.get('wordstring')
+#        self.rel_type = worddata.get('rel_type')
+
+#    @staticmethod
+#    def find(word, format=None):
+#        """Returns a word from wordnik if it is in the corpus.
+
+#        Sample Response::
+
+#            <word>
+#                <id>27568</id>
+#                <word>cat</word>
+#            </word>
+
+#        Params:
+#            word : str
+#                The requested word
+
+#        Returns:
+#            The JSON or XML response from wordnik
+#        """
+#        request_uri = "/api/word.%%s/%s" % word
+#        data = Wordnik._get(request_uri, format=format)
+#        return Word(data)
+
 class Wordnik(object):
     """ Wordnik API object """
 
