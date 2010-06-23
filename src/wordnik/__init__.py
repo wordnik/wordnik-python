@@ -88,6 +88,24 @@ class Wordnik(object):
         request_uri = "/api/word.%%s/%s" % word
         return self._get(request_uri, format=format)
 
+    def phrases(self, word, count=10, format=None):
+        """Fetch bi-gram phrases containing a word.
+
+        Sample Response:
+
+          <bigrams>
+             <bigram>
+                <mi>12.414364902158674</mi>
+                <wlmi>20.877889275429855</wlmi>
+                <gram1>Christmas</gram1>
+                <gram2>Eve</gram2>
+             </bigram>
+          </bigrams>
+        """
+        request_uri = "/api/word.%%s/%s/phrases" % (word)
+        request_uri = self._format_url_args(request_uri, count=count)
+        return self._get(request_uri, format=format)
+
     def definitions(self, word, count=None, partOfSpeech=None, format=None):
         """Returns the definitions from wordnik if the requested word is in the corpus.
 
@@ -125,33 +143,6 @@ class Wordnik(object):
         request_uri = self._format_url_args(request_uri, count=count, partOfSpeech=partOfSpeech)
         return self._get(request_uri, format=format)
 
-    def frequency(self, word, format=None):
-        """Returns the usage frequency of a word in the wordnik corpus.
-
-        Sample Response::
-
-            <frequencySummary>
-                <frequency>
-                    <count>18773</count>
-                    <year>1846</year>
-                </frequency>
-                <frequency>
-                    <count>23742</count>
-                    <year>1847</year>
-                </frequency>
-                ...
-            </frequencySummary>
-
-        Params:
-            word : str
-                The requested word
-
-        Returns:
-            The JSON or XML response from wordnik
-        """
-        request_uri = "/api/word.%%s/%s/frequency" % (word, )
-        return self._get(request_uri, format=format)
-
     def examples(self, word, format=None):
         """Returns example usages of a word in the wordnik corpus.
 
@@ -184,6 +175,92 @@ class Wordnik(object):
             The JSON or XML response from wordnik
         """
         request_uri = "/api/word.%%s/%s/examples" % ( word, )
+        return self._get(request_uri, format=format)
+
+    def related(self, word, type=None, format=None):
+        """Fetch related words for this word
+
+        Sample Response:
+
+          <words>
+             <word>
+                <id>18773</count>
+                <wordstring>simpleton</year>
+             </word>
+             < word>
+                <id>23742</id>
+                <wordstring>boor</wordstring>
+             </word>
+          ...
+          </words>
+        """
+        all_types = [None, "synonym", "antonym", "form", "equivalent", "hyponym", "variant"]
+        if type in all_types:
+            request_uri = "/api/word.%%s/%s/related?type=%s" % (word, type, )
+            return self._get(request_uri, format=format)
+        else:
+            raise InvalidRelationType()
+
+    def frequency(self, word, format=None):
+        """Returns the usage frequency of a word in the wordnik corpus.
+
+        Sample Response::
+
+            <frequencySummary>
+                <frequency>
+                    <count>18773</count>
+                    <year>1846</year>
+                </frequency>
+                <frequency>
+                    <count>23742</count>
+                    <year>1847</year>
+                </frequency>
+                ...
+            </frequencySummary>
+
+        Params:
+            word : str
+                The requested word
+
+        Returns:
+            The JSON or XML response from wordnik
+        """
+        request_uri = "/api/word.%%s/%s/frequency" % (word, )
+        return self._get(request_uri, format=format)
+
+    def punctuation(self, word, format=None):
+        """Fetch a word's punctuation factor.
+
+          Sample Response:
+            <punctuationFactor>
+               <exclamationPointCount>9486</exclamationPointCount>
+               <periodCount>12454</periodCount>
+               <questionMarkCount>52</questionMarkCount>
+               <totalCount>39832</totalCount>
+               <wordId>567925</wordId>
+            </punctuationFactor>
+        """
+        request_uri = "/api/word.%%s/%s/punctuationFactor" % (word, )
+        return self._get(request_uri, format=format)
+
+    def text_pronunciation(self, word, format=None):
+        """Fetch a word’s text pronunciation from the Wornik corpus, in arpabet and/or gcide-diacritical format.
+
+        Sample response:
+        <textProns>
+          <textPron seq="0">
+            <id>0</id>
+            <raw>(kŏm*pūt"ẽr)</raw>
+            <rawType>gcide-diacritical</rawType>
+          </textPron>
+          <textPron seq="0">
+            <id>0</id>
+            <raw>K AH0 M P Y UW1 T ER0</raw>
+            <rawType>arpabet</rawType>
+          </textPron>
+        </textProns>
+        """
+        request_uri = "/api/word.%%s/%s/pronunciations" % (word, )
         return self._get(request_uri, format=format)
 
     def suggest(self, fragment, count=1, start_at=0, format=None):
@@ -263,83 +340,6 @@ class Wordnik(object):
         >>>
         """
         request_uri = "/api/words.%%s/randomWord?hasDictionaryDef=%s" % ( has_definition, )
-        return self._get(request_uri, format=format)
-
-    def phrases(self, word, count=10, format=None):
-        """Fetch bi-gram phrases containing a word.
-
-        Sample Response:
-
-          <bigrams>
-             <bigram>
-                <mi>12.414364902158674</mi>
-                <wlmi>20.877889275429855</wlmi>
-                <gram1>Christmas</gram1>
-                <gram2>Eve</gram2>
-             </bigram>
-          </bigrams>
-        """
-        request_uri = "/api/word.%%s/%s/phrases" % (word)
-        request_uri = self._format_url_args(request_uri, count=count)
-        return self._get(request_uri, format=format)
-
-    def related(self, word, type=None, format=None):
-        """Fetch related words for this word
-
-        Sample Response:
-
-          <words>
-             <word>
-                <id>18773</count>
-                <wordstring>simpleton</year>
-             </word>
-             < word>
-                <id>23742</id>
-                <wordstring>boor</wordstring>
-             </word>
-          ...
-          </words>
-        """
-        all_types = [None, "synonym", "antonym", "form", "equivalent", "hyponym", "variant"]
-        if type in all_types:
-            request_uri = "/api/word.%%s/%s/related?type=%s" % (word, type, )
-            return self._get(request_uri, format=format)
-        else:
-            raise InvalidRelationType()
-
-    def punctuation(self, word, format=None):
-        """Fetch a word's punctuation factor.
-
-          Sample Response:
-            <punctuationFactor>
-               <exclamationPointCount>9486</exclamationPointCount>
-               <periodCount>12454</periodCount>
-               <questionMarkCount>52</questionMarkCount>
-               <totalCount>39832</totalCount>
-               <wordId>567925</wordId>
-            </punctuationFactor>
-        """
-        request_uri = "/api/word.%%s/%s/punctuationFactor" % (word, )
-        return self._get(request_uri, format=format)
-
-    def text_pronunciation(self, word, format=None):
-        """Fetch a word’s text pronunciation from the Wornik corpus, in arpabet and/or gcide-diacritical format.
-
-        Sample response:
-        <textProns>
-          <textPron seq="0">
-            <id>0</id>
-            <raw>(kŏm*pūt"ẽr)</raw>
-            <rawType>gcide-diacritical</rawType>
-          </textPron>
-          <textPron seq="0">
-            <id>0</id>
-            <raw>K AH0 M P Y UW1 T ER0</raw>
-            <rawType>arpabet</rawType>
-          </textPron>
-        </textProns>
-        """
-        request_uri = "/api/word.%%s/%s/pronunciations" % (word, )
         return self._get(request_uri, format=format)
 
 def main(args):
