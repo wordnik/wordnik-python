@@ -3,7 +3,7 @@
 from distutils.core import setup
 
 setup(name="wordnik",
-      version="0.1",
+      version="0.2",
       description="Simple wrapper around the wordnik API",
       author="Altay Guvench",
       author_email="aguvench@gmail.com",
