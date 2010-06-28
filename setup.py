@@ -10,4 +10,5 @@ setup(name="wordnik",
       requires=['simplejson', "PyYaml", ],
       package_dir={"": "src"},
       packages=["wordnik", ],
+      url="http://wordnik.com/developers",
 )
