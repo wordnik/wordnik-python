@@ -23,8 +23,17 @@ class RestfulError(Exception):
 class InvalidRelationType(Exception):
     pass
 
-PARTS_OF_SPEECH = ['noun', 'verb', 'adjective', 'adverb', 'idiom', 'article', 'abbreviation', 'preposition', 'prefix', 'interjection','suffix', 'conjunction', 'adjective_and_adverb', 'noun_and_adjective',  'noun_and_verb_transitive', 'noun_and_verb', 'past_participle', 'imperative', 'noun_plural', 'proper_noun_plural', 'verb_intransitive', 'proper_noun', 'adjective_and_noun',   'imperative_and_past_participle', 'pronoun', 'verb_transitive', 'noun_and_verb_intransitive', 'adverb_and_preposition','proper_noun_posessive','noun_posessive']
-
+PARTS_OF_SPEECH = set(['noun', 'verb', 'adjective', 'adverb', 'idiom', 
+                  'article', 'abbreviation', 'preposition', 'prefix', 
+                  'interjection', 'suffix', 'conjunction', 
+                  'adjective_and_adverb', 'noun_and_adjective',  
+                  'noun_and_verb_transitive', 'noun_and_verb', 
+                  'past_participle', 'imperative', 'noun_plural', 
+                  'proper_noun_plural', 'verb_intransitive', 'proper_noun', 
+                  'adjective_and_noun',   'imperative_and_past_participle', 
+                  'pronoun', 'verb_transitive', 'noun_and_verb_intransitive', 
+                  'adverb_and_preposition','proper_noun_posessive',
+                  'noun_posessive']) 
 
 
 class Wordnik(object):
@@ -48,9 +57,10 @@ class Wordnik(object):
 
     def _get(self, request_uri, additional_headers={}, format=None):
         """ make a GET request to the wordnik server """
-        return self._make_request(request_uri, additional_headers, format, "GET")
+        return self._make_request(request_uri, additional_headers, format)
 
-    def _make_request(self, request_uri, additional_headers={}, format=None, method="GET"):
+    def _make_request(self, request_uri, additional_headers={}, format=None, 
+                      method="GET"):
         """ make a request to the wordnik server """
 
         format = format or self.format
@@ -108,7 +118,7 @@ class Wordnik(object):
         return self._get(request_uri, format=format)
 
     def definitions(self, word, count=None, partOfSpeech=None, format=None):
-        """Returns the definitions from wordnik if the requested word is in the corpus.
+        """Return the definitions if the requested word is in the corpus.
 
         Sample Response::
 
@@ -141,7 +151,8 @@ class Wordnik(object):
         """
 
         request_uri = "/api/word.%%s/%s/definitions" % (word )
-        request_uri = self._format_url_args(request_uri, count=count, partOfSpeech=partOfSpeech)
+        request_uri = self._format_url_args(request_uri, count=count, 
+                                            partOfSpeech=partOfSpeech)
         return self._get(request_uri, format=format)
 
     def examples(self, word, format=None):
@@ -195,7 +206,9 @@ class Wordnik(object):
           ...
           </words>
         """
-        all_types = [None, "synonym", "antonym", "form", "equivalent", "hyponym", "variant"]
+        #TODO: It seems a little messy to pass around and handle None
+        all_types = [None, "synonym", "antonym", "form", "equivalent", 
+                     "hyponym", "variant"]
         if type in all_types:
             request_uri = "/api/word.%%s/%s/related?type=%s" % (word, type, )
             return self._get(request_uri, format=format)
@@ -245,7 +258,7 @@ class Wordnik(object):
         return self._get(request_uri, format=format)
 
     def text_pronunciation(self, word, format=None):
-        """Fetch a word’s text pronunciation from the Wornik corpus, in arpabet and/or gcide-diacritical format.
+        """Fetch a word's pronunciation in arpabet or gcide-diacritical format.
 
         Sample response:
         <textProns>
@@ -300,7 +313,8 @@ class Wordnik(object):
             The JSON or XML response from wordnik
         """
         request_uri = "/api/suggest.%%s/%s" % (fragment)
-        request_uri = self._format_url_args(request_uri, count=count, startAt=start_at)
+        request_uri = self._format_url_args(request_uri, count=count, 
+                                            startAt=start_at)
         return self._get(request_uri, format=format)
 
     def word_of_the_day(self, format=None):
@@ -340,7 +354,8 @@ class Wordnik(object):
         {'word': 'smatch', 'id': 96660}
         >>>
         """
-        request_uri = "/api/words.%%s/randomWord?hasDictionaryDef=%s" % ( has_definition, )
+        request_uri = "/api/words.%%s/randomWord?hasDictionaryDef=%s" % \
+                      ( has_definition, )
         return self._get(request_uri, format=format)
 
 def main(args):
@@ -349,7 +364,8 @@ def main(args):
     parser.add_option("-f", "--format", dest="format", action="store", 
                       choices=(Wordnik.FORMAT_JSON, Wordnik.FORMAT_XML),
                       metavar="FORMAT")
-    parser.add_option("-a", "--api-key", dest="api_key", type="string", action="store", metavar="API_KEY")
+    parser.add_option("-a", "--api-key", dest="api_key", type="string", 
+                      action="store", metavar="API_KEY")
     parser.add_option("-c", "--choice", dest="choice",
                       choices=("word",
                                "definitions",
@@ -370,7 +386,6 @@ def main(args):
     parser.set_defaults(format=Wordnik.FORMAT_JSON)
 
     options, args = parser.parse_args(args)
-    print options
 
     if not options.api_key:
         parser.error('api_key must be specified.')
