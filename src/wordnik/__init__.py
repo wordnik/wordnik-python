@@ -366,9 +366,9 @@ def main(args):
 
 
     parser.set_defaults(format=Wordnik.FORMAT_JSON)
-    parser.set_defaults(api_key=u"")
 
     options, args = parser.parse_args(args)
+    print options
 
     if not options.api_key:
         parser.error('api_key must be specified.')
