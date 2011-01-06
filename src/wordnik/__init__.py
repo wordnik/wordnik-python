@@ -369,10 +369,8 @@ def main(args):
 
     options, args = parser.parse_args(args)
 
-    try:
-        wordnik = Wordnik(api_key=options.api_key, default_format=options.format)
-    except (NameError, ), error:
-        print error
+    wordnik = Wordnik(api_key=options.api_key, default_format=options.format)
+
     for arg in args:
         pprint(getattr(wordnik, options.choice)(arg))
 
