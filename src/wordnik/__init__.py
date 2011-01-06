@@ -55,18 +55,19 @@ class Wordnik(object):
             path += "?%s" % urllib.urlencode(kws)
         return path
 
-    def _get(self, request_uri, additional_headers={}, format=None):
+    def _get(self, request_uri, additional_headers=None, format=None):
         """ make a GET request to the wordnik server """
         return self._make_request(request_uri, additional_headers, format)
 
-    def _make_request(self, request_uri, additional_headers={}, format=None, 
+    def _make_request(self, request_uri, additional_headers=None, format=None, 
                       method="GET"):
         """ make a request to the wordnik server """
 
         format = format or self.format
         con = httplib.HTTPConnection(BASE_HOST)
         headers = {"api_key": self.api_key}
-        headers.update(additional_headers)
+        if additional_headers is not None:
+            headers.update(additional_headers)
         con.request(method, request_uri % format, headers=headers)
         result = con.getresponse()
 
