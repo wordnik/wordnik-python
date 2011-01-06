@@ -118,7 +118,7 @@ class Wordnik(object):
         request_uri = self._format_url_args(request_uri, count=count)
         return self._get(request_uri, format_=format_)
 
-    def definitions(self, word, count=None, partOfSpeech=None, format_=None):
+    def definitions(self, word, count=None, part_of_speech=None, format_=None):
         """Return the definitions if the requested word is in the corpus.
 
         Sample Response::
@@ -153,7 +153,7 @@ class Wordnik(object):
 
         request_uri = "/api/word.%%s/%s/definitions" % (word )
         request_uri = self._format_url_args(request_uri, count=count, 
-                                            partOfSpeech=partOfSpeech)
+                                            partOfSpeech=part_of_speech)
         return self._get(request_uri, format_=format_)
 
     def examples(self, word, format_=None):
