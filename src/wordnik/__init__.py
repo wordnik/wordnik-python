@@ -1,27 +1,29 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
+
+
 """Thin wrapper around the restful API from wordnik.com
 
-This currently module presents a thin wrapper around the wordnik API.
+This module currently presents a thin wrapper around the wordnik API.
 """
-BASE_HOST = u"api.wordnik.com"
+
 
 import sys
-try:
-    import json
-except ImportError:
-    import simplejson as json
+import simplejson as json
 import httplib
 import urllib
 from optparse import OptionParser
 from xml.etree import ElementTree
 from pprint import pprint
 
+
 class RestfulError(Exception):
     pass
 
 class InvalidRelationType(Exception):
     pass
+
+BASE_HOST = u"api.wordnik.com"
 
 PARTS_OF_SPEECH = set(['noun', 'verb', 'adjective', 'adverb', 'idiom', 
                   'article', 'abbreviation', 'preposition', 'prefix', 
