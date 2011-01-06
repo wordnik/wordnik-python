@@ -25,19 +25,20 @@ class InvalidRelationType(Exception):
 
 PARTS_OF_SPEECH = ['noun', 'verb', 'adjective', 'adverb', 'idiom', 'article', 'abbreviation', 'preposition', 'prefix', 'interjection','suffix', 'conjunction', 'adjective_and_adverb', 'noun_and_adjective',  'noun_and_verb_transitive', 'noun_and_verb', 'past_participle', 'imperative', 'noun_plural', 'proper_noun_plural', 'verb_intransitive', 'proper_noun', 'adjective_and_noun',   'imperative_and_past_participle', 'pronoun', 'verb_transitive', 'noun_and_verb_intransitive', 'adverb_and_preposition','proper_noun_posessive','noun_posessive']
 
-FORMAT_JSON = "json"
-FORMAT_XML = "xml"
 
 
 class Wordnik(object):
     """ Wordnik API object """
 
+    FORMAT_JSON = "json"
+    FORMAT_XML = "xml"
+
     def __init__(self, api_key, default_format=FORMAT_JSON):
         self.api_key = api_key
         self.format = default_format
         self.formatters = {
-               FORMAT_JSON: json.loads,
-               FORMAT_XML: ElementTree.fromstring
+               Wordnik.FORMAT_JSON: json.loads,
+               Wordnik.FORMAT_XML: ElementTree.fromstring
 			  }
 
     def _format_url_args(self, path, **kws):
@@ -369,7 +370,7 @@ def main(args):
     options, args = parser.parse_args(args[1:])
 
     try:
-        wordnik = Wordnik(api_key=options.api_key, format=options.format)
+        wordnik = Wordnik(api_key=options.api_key, default_format=options.format)
     except (NameError, ), error:
         print error
     for arg in args:
