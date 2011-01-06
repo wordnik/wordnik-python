@@ -346,7 +346,9 @@ class Wordnik(object):
 def main(args):
 
     parser = OptionParser()
-    parser.add_option("-f", "--format", dest="format", type="string", action="store", metavar="FORMAT")
+    parser.add_option("-f", "--format", dest="format", action="store", 
+                      choices=(Wordnik.FORMAT_JSON, Wordnik.FORMAT_XML),
+                      metavar="FORMAT")
     parser.add_option("-a", "--api-key", dest="api_key", type="string", action="store", metavar="API_KEY")
     parser.add_option("-c", "--choice", dest="choice",
                       choices=("word",
