@@ -367,7 +367,7 @@ def main(args):
     parser.set_defaults(format=Wordnik.FORMAT_JSON)
     parser.set_defaults(api_key=u"")
 
-    options, args = parser.parse_args(args[1:])
+    options, args = parser.parse_args(args)
 
     try:
         wordnik = Wordnik(api_key=options.api_key, default_format=options.format)
@@ -377,7 +377,7 @@ def main(args):
         pprint(getattr(wordnik, options.choice)(arg))
 
 if __name__ == "__main__":
-    main(sys.argv)
+    exit(main(sys.argv[1:]))
 
 __docformat__ = u"restructuredtext en"
 __author__ = u"Altay Guvench"
