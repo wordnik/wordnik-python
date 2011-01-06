@@ -50,7 +50,8 @@ class Wordnik(object):
                Wordnik.FORMAT_XML: ElementTree.fromstring
 			  }
 
-    def _format_url_args(self, path, **kws):
+    @staticmethod
+    def _format_url_args(path, **kws):
         if kws:
             path += "?%s" % urllib.urlencode(kws)
         return path
