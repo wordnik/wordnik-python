@@ -190,7 +190,7 @@ class Wordnik(object):
         request_uri = "/api/word.%%s/%s/examples" % ( word, )
         return self._get(request_uri, format_=format_)
 
-    def related(self, word, type=None, format_=None):
+    def related(self, word, type_=None, format_=None):
         """Fetch related words for this word
 
         Sample Response:
@@ -210,8 +210,8 @@ class Wordnik(object):
         #TODO: It seems a little messy to pass around and handle None
         all_types = [None, "synonym", "antonym", "form", "equivalent", 
                      "hyponym", "variant"]
-        if type in all_types:
-            request_uri = "/api/word.%%s/%s/related?type=%s" % (word, type, )
+        if type_ in all_types:
+            request_uri = "/api/word.%%s/%s/related?type=%s" % (word, type_)
             return self._get(request_uri, format_=format_)
         else:
             raise InvalidRelationType()
