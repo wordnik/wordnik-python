@@ -54,6 +54,7 @@ class Wordnik(object):
 
     @staticmethod
     def _format_url_args(path, **kws):
+        #TODO: Rework everything so None is never passed in, then rm the check.
         if kws:
             args = ['%s=%s' % (arg, val) for (arg, val) in kws.items() 
                     if val is not None]
