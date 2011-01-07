@@ -55,7 +55,9 @@ class Wordnik(object):
     @staticmethod
     def _format_url_args(path, **kws):
         if kws:
-            path += "?%s" % urllib.urlencode(kws)
+            args = ['%s=%s' % (arg, val) for (arg, val) in kws.items() 
+                    if val is not None]
+            path += '?%s' % '&'.join(args)
         return path
 
     def _get(self, request_uri, additional_headers=None, format_=None):
@@ -320,6 +322,37 @@ class Wordnik(object):
         request_uri = self._format_url_args(request_uri, count=count, 
                                             startAt=start_at)
         return self._get(request_uri, format_=format_)
+
+    #TODO: maybe use call to locals() so I don't have to repeat. But then I'll
+    #      need to change to camel case. Could get ugly.
+    def word_search(self, query, include_pos=None, exclude_pos=None, 
+                    min_corpus_count=None, max_corpus_count=None, 
+                    min_dictionary_count=None, max_dictionary_count=None, 
+                    min_length=None, max_length=None, skip=None, limit=None,
+                    format_=None):
+        """Fetch words matching `query` and other optional constraints.
+        
+        TODO: KWargs
+        """
+        if include_pos is not None:
+            include_pos = ','.join(include_pos)
+        if exclude_pos is not None:
+            exclude_pos = ','.join(exclude_pos)
+
+        request_uri = self._format_url_args('/api/words.%s/search', query=query,
+            includePartOfSpeech=include_pos, excludePartOfSpeech=exclude_pos, 
+            minCorpusCount=min_corpus_count, maxCorpusCount=max_corpus_count, 
+            minDictionaryCount=min_dictionary_count, 
+            maxDictionaryCount=max_dictionary_count, minLength=min_length, 
+            maxLength=max_length, skip=skip, limit=limit)
+
+        # Return an empty list if the search fails.
+        # TODO: Find a way to only catch search failure errors
+        try:
+            ret = self._get(request_uri, format_=format_)
+        except RestfulError:
+            ret = []
+        return ret
 
     def word_of_the_day(self, format_=None):
         """Fetches the *word of the day* from wordnik
