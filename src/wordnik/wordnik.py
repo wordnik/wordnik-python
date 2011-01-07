@@ -342,9 +342,11 @@ class Wordnik(object):
         TODO: KWargs
         """
         if include_pos is not None:
-            include_pos = ','.join(include_pos)
+            if not isinstance(include_pos, basestring):
+                include_pos = ','.join(include_pos)
         if exclude_pos is not None:
-            exclude_pos = ','.join(exclude_pos)
+            if not isinstance(exclude_pos, basestring):
+                exclude_pos = ','.join(exclude_pos)
 
         request_uri = self._format_url_args('/api/words.%s/search', query=query,
             includePartOfSpeech=include_pos, excludePartOfSpeech=exclude_pos, 
