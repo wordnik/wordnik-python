@@ -28,14 +28,14 @@ BASE_HOST = u"api.wordnik.com"
 PARTS_OF_SPEECH = set(['noun', 'verb', 'adjective', 'adverb', 'idiom', 
                   'article', 'abbreviation', 'preposition', 'prefix', 
                   'interjection', 'suffix', 'conjunction', 
-                  'adjective_and_adverb', 'noun_and_adjective',  
-                  'noun_and_verb_transitive', 'noun_and_verb', 
-                  'past_participle', 'imperative', 'noun_plural', 
-                  'proper_noun_plural', 'verb_intransitive', 'proper_noun', 
-                  'adjective_and_noun',   'imperative_and_past_participle', 
-                  'pronoun', 'verb_transitive', 'noun_and_verb_intransitive', 
-                  'adverb_and_preposition','proper_noun_posessive',
-                  'noun_posessive']) 
+                  'adjective-and-adverb', 'noun-and-adjective',  
+                  'noun-and-verb-transitive', 'noun-and-verb', 
+                  'past-participle', 'imperative', 'noun-plural', 
+                  'proper-noun-plural', 'verb-intransitive', 'proper-noun', 
+                  'adjective-and-noun',   'imperative-and-past-participle', 
+                  'pronoun', 'verb-transitive', 'noun-and-verb-intransitive', 
+                  'adverb-and-preposition','proper-noun-posessive',
+                  'noun-posessive']) 
 
 
 class Wordnik(object):
@@ -85,6 +85,12 @@ class Wordnik(object):
                 raise RestfulError(retval.find("message").text)
 
         return retval 
+
+    def api_usage(self, format_=None):
+        """Return information about the user's API key usage."""
+        request_uri = "/api/account.%s/apiTokenStatus"
+        return self._get(request_uri, format_=format_)
+
 
     def word(self, word, format_=None):
         """Returns a word from wordnik if it is in the corpus.
