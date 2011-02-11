@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 """Thin wrapper around the restful API from wordnik.com
 
-This currently module presents a thin wrapper around the wordnik API.
+This module presents a thin wrapper around the wordnik API.
 """
 BASE_HOST = u"api.wordnik.com"
 
@@ -27,35 +27,6 @@ PARTS_OF_SPEECH = ['noun', 'verb', 'adjective', 'adverb', 'idiom', 'article', 'a
 
 FORMAT_JSON = "json"
 FORMAT_XML = "xml"
-
-
-#class Word(object):
-#    def __init__(self, client, worddata):
-#        self.id = worddata.get('id')
-#        self.wordstring = worddata.get('wordstring')
-#        self.rel_type = worddata.get('rel_type')
-
-#    @staticmethod
-#    def find(word, format=None):
-#        """Returns a word from wordnik if it is in the corpus.
-
-#        Sample Response::
-
-#            <word>
-#                <id>27568</id>
-#                <word>cat</word>
-#            </word>
-
-#        Params:
-#            word : str
-#                The requested word
-
-#        Returns:
-#            The JSON or XML response from wordnik
-#        """
-#        request_uri = "/api/word.%%s/%s" % word
-#        data = Wordnik._get(request_uri, format=format)
-#        return Word(data)
 
 class Wordnik(object):
     """ Wordnik API object """
@@ -101,10 +72,10 @@ class Wordnik(object):
 
         Sample Response::
 
-            <word>
-                <id>27568</id>
-                <word>cat</word>
-            </word>
+            <wordObject>
+               <word>clover</word>
+               <canonicalForm>clover</canonicalForm>
+            </wordObject>
 
         Params:
             word : str
@@ -113,7 +84,7 @@ class Wordnik(object):
         Returns:
             The JSON or XML response from wordnik
         """
-        request_uri = "/api/word.%%s/%s" % word
+        request_uri = "/v4/word.%%s/%s" % word
         return self._get(request_uri, format=format)
 
     def definitions(self, word, count=None, partOfSpeech=None, format=None):
@@ -122,22 +93,15 @@ class Wordnik(object):
         Sample Response::
 
             <definitions>
-               <definition id="343222" headerId="295572">
-                  <headword>cat</headword>
-                  <headwordId>27568</headwordId>
-                  <partOfSpeech>n.</partOfSpeech>
-                  <pos>0</pos>
-                  <defTxtSummary>
-                     A domesticated carnivorous quadruped of the family Felidæ and genus
-                     Felis, F. domestica.
-                  </defTxtSummary>
-                  <defTxtExtended>
-                     It is uncertain whether any animal now existing in a wild state is
-                     the ancestor of the domestic cat; probably it is descended from a
-                     cat originally domesticated in Egypt, though some regard the wildcat of Europe,
-                     <em>F. catus</em>, as the feral stock. The wildcat is much larger than the
-                     domestic cat, strong and ferocious, and very destructive to poultry, lambs, etc.
-                  </defTxtExtended>
+               <definition sequence="0">
+                  <text>Any of various herbs of the genus Trifolium in the pea family, having trifoliolate leaves and dense heads of small flowers and including species grown for forage, for erosion control, and as a source of nectar for honeybees.</text>
+                  <partOfSpeech>noun</partOfSpeech>
+                  <word>clover</word>
+               </definition>
+               <definition sequence="1">
+                  <text>Any of several other plants in the pea family, such as bush clover and sweet clover.</text>
+                  <partOfSpeech>noun</partOfSpeech>
+                  <word>clover</word>
                </definition>
                ...
             </definitions>
@@ -149,7 +113,7 @@ class Wordnik(object):
             The JSON or XML response from wordnik
         """
 
-        request_uri = "/api/word.%%s/%s/definitions" % (word )
+        request_uri = "/v4/word.%%s/%s/definitions" % (word )
         request_uri = self._format_url_args(request_uri, count=count, partOfSpeech=partOfSpeech)
         return self._get(request_uri, format=format)
 
@@ -159,17 +123,20 @@ class Wordnik(object):
         Sample Response::
 
             <frequencySummary>
-                <frequency>
-                    <count>18773</count>
-                    <year>1846</year>
-                </frequency>
-                <frequency>
-                    <count>23742</count>
-                    <year>1847</year>
-                </frequency>
-                ...
+               <frequency>
+                  <count>99</count>
+                  <year>1800</year>
+               </frequency>
+               <frequency>
+                  <count>14</count>
+                  <year>1801</year>
+               </frequency>
+               ...
+               <totalCount>135115637</totalCount>
+                  <unknownYearCount>0</unknownYearCount>
+                  <word>clover</word>
             </frequencySummary>
-
+            
         Params:
             word : str
                 The requested word
@@ -177,7 +144,7 @@ class Wordnik(object):
         Returns:
             The JSON or XML response from wordnik
         """
-        request_uri = "/api/word.%%s/%s/frequency" % (word, )
+        request_uri = "/v4/word.%%s/%s/frequency" % (word, )
         return self._get(request_uri, format=format)
 
     def examples(self, word, format=None):
@@ -185,24 +152,26 @@ class Wordnik(object):
 
         Sample Response::
 
-            <examples>
-                <example>
-                    <display>
-                    When there was room on the ledge outside of the pots and
-                    boxes for a cat, the cat was there--in sunny weather--stretched
-                    at full length, asleep and blissful, with her furry belly to the
-                    sun and a paw curved over her nose.
-                    </display>
-                    <documentId>726554</documentId>
-                    <exampleId>212090080</exampleId>
-                    <id>212090080</id>
-                    <rating>75</rating>
-                    <title>The Tragedy of Pudd'nhead Wilson</title>
-                    <url>http://www.gutenberg.org/dirs/1/0/102/102.txt</url>
-                    <year>1872</year>
-                </example>
-                ...
-            </examples>
+            <exampleSearchResults>
+               <examples>
+                  <example>
+                     <text>I am not familiar with Virginia soils but I can tell you in the midwest clover is a Deer dream plot.</text>
+                     <documentId>30642987</documentId>
+                     <exampleId>735059704</exampleId>
+                     <provider>
+                        <id>711</id>
+                        <name>wordnik</name>
+                     </provider>
+                     <rating>444.0</rating>
+                     <title>Food Plots For Virginia</title>
+                     <url>http://www.fieldandstream.com/forums/hunting/deer-hunting/food-plots-virginia</url>
+                     <word>clover</word>
+                     <year>2010</year>
+                  </example>
+                  ...
+               </examples>
+               <totalResults>0</totalResults>
+             </exampleSearchResults>
 
         Params:
             word : str
@@ -211,7 +180,7 @@ class Wordnik(object):
         Returns:
             The JSON or XML response from wordnik
         """
-        request_uri = "/api/word.%%s/%s/examples" % ( word, )
+        request_uri = "/v4/word.%%s/%s/examples" % ( word, )
         return self._get(request_uri, format=format)
 
     def suggest(self, fragment, count=1, start_at=0, format=None):
@@ -220,21 +189,22 @@ class Wordnik(object):
         Sample Response::
 
             <searchResult>
-                <matches>12385</matches>
-                <more>12370</more>
+                <matches>23</matches>
+                <more>7</more>
                 <searchTerm>
-                    <word>ca</word>
-                    <frequency>37</frequency>
+                    <count>9446</count>
+                    <wordstring>clover</wordstring>
                 </searchTerm>
                 <match>
-                    <word>ca</word>
-                    <frequency>37</frequency>
+                    <count>9446</count>
+                    <wordstring>clover</wordstring>
                 </match>
                 <match>
-                    <word>caused</word>
-                    <frequency>99797</frequency>
+                    <count>7362</count>
+                    <wordstring>Clover</wordstring>
                 </match>
                 ...
+                <style/>
             </searchResult>
 
         Params:
@@ -249,7 +219,7 @@ class Wordnik(object):
         Returns:
             The JSON or XML response from wordnik
         """
-        request_uri = "/api/suggest.%%s/%s" % (fragment)
+        request_uri = "/v4/suggest.%%s/%s" % (fragment)
         request_uri = self._format_url_args(request_uri, count=count, startAt=start_at)
         return self._get(request_uri, format=format)
 
@@ -258,39 +228,55 @@ class Wordnik(object):
 
         Sample Response::
 
-            <wotd publishDate="2009-10-21T04:00:00Z" id="51">
-               <word>doke</word>
-               <definition>
-                  <text>
-                     noun, a deep dint or furrow, a contusion, or a flaw in a marble.
-                  </text>
-               </definition>
-               <example>
-                  <text>
-                     He knew his garnet cats-eye with the sparkly doke would be taken by the tough kid in the next game.
-                  </text>
-               </example>
-               <note>A rare word.</note>
-            </wotd>
+            <WordOfTheDay>
+               <contentProvider>
+                  <id>711</id>
+                  <name>wordnik</name>
+               </contentProvider>
+               <definitions>
+                  <definition>
+                     <note/>
+                     <partOfSpeech name="noun" typeId="200"/>
+                     <source>century</source>
+                     <text>(adj) Fearful; terrible.</text>
+                  </definition>
+                  <definition>
+                     <note/>
+                     <partOfSpeech name="noun" typeId="200"/>
+                     <source>century</source>
+                     <text>(adj) Unexpected; sudden.</text>
+                  </definition>
+                </definitions>
+                <examples>
+                      <example>
+                         <text>The Earl laughed: 'Many a ferly fares to the fair-eyed,' quoth he; 'and also I will tell thee in thine ear that this Lady may not be so great as her name is great.'</text>
+                         <id>454330288</id>
+                         <title>Child Christopher and Goldilind the Fair</title>
+                         <url>http://fiction.eserver.org/novels/child_christopher.html/view</url>
+                      </example>
+                </examples>
+                <id>4320</id>
+                <note>'Ferly' comes from the Old English, 'faerlic,' meaning unexpected.</note>
+                <publishDate>2010-11-01T02:00:00Z</publishDate>
+                <word>ferly</word>
+            </WordOfTheDay>
+                
 
 
         Returns:
             The JSON or XML response from wordnik
         """
-        request_uri = "/api/wordoftheday.%s"
+        request_uri = "/v4/words.%s/wordOfTheDay"
         return self._get(request_uri, format=format)
 
     def random_word(self, has_definition=False, format=None):
         """Fetch a random word from the Alpha Corpus.
 
-        >>> import wordnik
-        >>> k = "..."
-        >>> w = wordnik.Wordnik(api_key=k)
-        >>> w.random_word()
-        {'word': 'smatch', 'id': 96660}
-        >>>
+        <wordObject>
+           <word>teld</word>
+        </wordObject>
         """
-        request_uri = "/api/words.%%s/randomWord?hasDictionaryDef=%s" % ( has_definition, )
+        request_uri = "/v4/words.%%s/randomWord?hasDictionaryDef=%s" % ( has_definition, )
         return self._get(request_uri, format=format)
 
     def phrases(self, word, count=10, format=None):
@@ -300,14 +286,22 @@ class Wordnik(object):
 
           <bigrams>
              <bigram>
-                <mi>12.414364902158674</mi>
-                <wlmi>20.877889275429855</wlmi>
-                <gram1>Christmas</gram1>
-                <gram2>Eve</gram2>
+                <count>1</count>
+                <mi>16.952889207360002</mi>
+                <wlmi>16.952889207360002</wlmi>
+                <gram1>gravy</gram1>
+                <gram2>clover</gram2>
+             </bigram>
+             <bigram>
+                <count>1</count>
+                <mi>14.656102547020637</mi>
+                <wlmi>14.656102547020637</wlmi>
+                <gram1>clover</gram1>
+                <gram2>rolls</gram2>
              </bigram>
           </bigrams>
         """
-        request_uri = "/api/word.%%s/%s/phrases" % (word)
+        request_uri = "/v4/word.%%s/%s/phrases" % (word)
         request_uri = self._format_url_args(request_uri, count=count)
         return self._get(request_uri, format=format)
 
@@ -316,21 +310,21 @@ class Wordnik(object):
 
         Sample Response:
 
-          <words>
-             <word>
-                <id>18773</count>
-                <wordstring>simpleton</year>
-             </word>
-             < word>
-                <id>23742</id>
-                <wordstring>boor</wordstring>
-             </word>
-          ...
-          </words>
+        <relateds>
+           <related relationshipType="hyponym">
+              <words>
+                 <word>alpine clover</word>
+                 <word>trifolium repens</word>
+                 <word>Dutch clover</word>
+                 ...
+              </words>
+           </related>
+        </relateds>
+
         """
-        all_types = [None, "synonym", "antonym", "form", "equivalent", "hyponym", "variant"]
+        all_types = [None, "synonym", "antonym", "form", "equivalent", "hyponym", "variant", "same-context"]
         if type in all_types:
-            request_uri = "/api/word.%%s/%s/related?type=%s" % (word, type, )
+            request_uri = "/v4/word.%%s/%s/related?type=%s" % (word, type, )
             return self._get(request_uri, format=format)
         else:
             raise InvalidRelationType()
@@ -345,9 +339,10 @@ class Wordnik(object):
                <questionMarkCount>52</questionMarkCount>
                <totalCount>39832</totalCount>
                <wordId>567925</wordId>
+               <style/>
             </punctuationFactor>
         """
-        request_uri = "/api/word.%%s/%s/punctuationFactor" % (word, )
+        request_uri = "/v4/word.%%s/%s/punctuationFactor" % (word, )
         return self._get(request_uri, format=format)
 
     def text_pronunciation(self, word, format=None):
@@ -355,19 +350,15 @@ class Wordnik(object):
 
         Sample response:
         <textProns>
-          <textPron seq="0">
-            <id>0</id>
-            <raw>(kŏm*pūt"ẽr)</raw>
-            <rawType>gcide-diacritical</rawType>
-          </textPron>
-          <textPron seq="0">
-            <id>0</id>
-            <raw>K AH0 M P Y UW1 T ER0</raw>
-            <rawType>arpabet</rawType>
-          </textPron>
+            <textPron seq="0">
+                <id>0</id>
+                <raw>(klōˈvər)</raw>
+                <rawType>ahd-legacy</rawType>
+            </textPron>
+            <style/>
         </textProns>
         """
-        request_uri = "/api/word.%%s/%s/pronunciations" % (word, )
+        request_uri = "/v4/word.%%s/%s/pronunciations" % (word, )
         return self._get(request_uri, format=format)
 
 def main(args):
@@ -397,7 +388,7 @@ def main(args):
     options, args = parser.parse_args(args[1:])
 
     try:
-        wordnik = Wordnik(api_key=options.api_key, format=options.format)
+        wordnik = Wordnik(api_key=options.api_key, default_format=options.format)
     except (NameError, ), error:
         print error
     for arg in args:
