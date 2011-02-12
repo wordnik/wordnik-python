@@ -340,6 +340,7 @@ class Wordnik(object):
         """Fetch words matching `query` and other optional constraints.
         
         TODO: KWargs
+        TODO: example
         """
         if include_pos is not None:
             if not isinstance(include_pos, basestring):
