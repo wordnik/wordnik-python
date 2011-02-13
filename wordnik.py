@@ -9,7 +9,10 @@ This module currently presents a thin wrapper around the wordnik API.
 
 
 import sys
-import simplejson as json
+try:
+    import simplejson as json
+except ImportError:
+    import json
 import httplib
 import urllib
 from optparse import OptionParser
