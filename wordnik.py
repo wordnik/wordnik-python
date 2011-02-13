@@ -403,17 +403,6 @@ def main(args):
 
     Request information from Wordnik's corpora is printed to stdout as either
     JSON or XML. Use the --help option to get a list of available resources.
-
-    Example Usage:
-        # Print out Wordnik's Word of the Day.
-        python wordnik.py -a <YOUR_API_KEY> -c word_of_the_day
-
-        # Print out a random word.
-        python wordnik.py -a <YOUR_API_KEY> -c random_word
-
-        # Print out definitions for the word "amphibian".
-        python wordnik.py -a <YOUR_API_KEY> -c word amphibian
-
     """
 
     usage = """%prog -a <API_KEY> -c word_of_the_day
