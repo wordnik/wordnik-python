@@ -8,6 +8,7 @@ This module currently presents a thin wrapper around the wordnik API.
 """
 
 
+import re
 import sys
 try:
     import simplejson as json
@@ -56,7 +57,6 @@ class Wordnik(object):
 
     @staticmethod
     def _format_url_args(path, **kws):
-        #TODO: Rework everything so None is never passed in, then rm the check.
         if kws:
             args = ['%s=%s' % (arg, val) for (arg, val) in kws.items() 
                     if val is not None]
@@ -332,8 +332,6 @@ class Wordnik(object):
                                             startAt=start_at)
         return self._get(request_uri, format_=format_)
 
-    #TODO: maybe use call to locals() so I don't have to repeat. But then I'll
-    #      need to change to camel case. Could get ugly.
     def word_search(self, query, include_pos=None, exclude_pos=None, 
                     min_corpus_count=None, max_corpus_count=None, 
                     min_dictionary_count=None, max_dictionary_count=None, 
@@ -408,13 +406,40 @@ class Wordnik(object):
         return self._get(request_uri, format_=format_)
 
 def main(args):
+    """Basic command-line interface to Wordnik's API.
 
-    parser = OptionParser()
+    Request information from Wordnik's corpora is printed to stdout as either
+    JSON or XML. Use the --help option to get a list of available resources.
+
+    Example Usage:
+        # Print out Wordnik's Word of the Day.
+        python wordnik.py -a <YOUR_API_KEY> -c word_of_the_day
+
+        # Print out a random word.
+        python wordnik.py -a <YOUR_API_KEY> -c random_word
+
+        # Print out definitions for the word "amphibian".
+        python wordnik.py -a <YOUR_API_KEY> -c word amphibian
+
+    """
+
+    usage = """%prog -a <API_KEY> -c word_of_the_day
+       %prog -a <API_KEY> -c random_word
+
+       # Choices requiring one or more words as arguments:
+       %prog -a <API_KEY> -c definitions amphibian mammals
+       %prog -a <API_KEY> -c frequency amphibian mammals
+       %prog -a <API_KEY> -c examples amphibian mammals
+       %prog -a <API_KEY> -c suggest amphibian mammals
+       %prog -a <API_KEY> -c phrases amphibian mammals
+       %prog -a <API_KEY> -c related amphibian mammals
+    """
+    parser = OptionParser(usage=usage)
     parser.add_option("-f", "--format", dest="format_", action="store", 
                       choices=(Wordnik.FORMAT_JSON, Wordnik.FORMAT_XML),
-                      default=Wordnik.FORMAT_JSON, metavar="FORMAT")
+                      default=Wordnik.FORMAT_JSON, metavar="<FORMAT>")
     parser.add_option("-a", "--api-key", dest="api_key", type="string", 
-                      action="store", metavar="API_KEY")
+                      action="store", metavar="<API_KEY>")
     parser.add_option("-c", "--choice", dest="choice",
                       choices=("word",
                                "definitions",
@@ -428,7 +453,7 @@ def main(args):
                                "punctuation",
                                ),
                       action="store",
-                      metavar="CHOICE"
+                      metavar="<CHOICE>"
                       )
 
     options, args = parser.parse_args(args)
@@ -438,11 +463,16 @@ def main(args):
 
     wordnik = Wordnik(api_key=options.api_key, default_format=options.format_)
 
-    for arg in args:
-        pprint(getattr(wordnik, options.choice)(arg))
+    if options.choice == 'word_of_the_day':
+        pprint(wordnik.word_of_the_day())
+
+    elif options.choice == 'random_word':
+        pprint(wordnik.random_word())
+
+    else:
+        for arg in args:
+            pprint(getattr(wordnik, options.choice)(arg))
 
 if __name__ == "__main__":
     exit(main(sys.argv[1:]))
 
-__docformat__ = u"restructuredtext en"
-__author__ = u"Altay Guvench"
