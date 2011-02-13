@@ -8,7 +8,6 @@ This module currently presents a thin wrapper around the wordnik API.
 """
 
 
-import re
 import sys
 try:
     import simplejson as json
@@ -21,10 +20,10 @@ from pprint import pprint
 
 
 class RestfulError(Exception):
-    pass
+    """Raised when response from REST API indicates an error has occurred."""
 
 class InvalidRelationType(Exception):
-    pass
+    """Raised if Wordnik.related method is passed invalid relation type."""
 
 BASE_HOST = u"api.wordnik.com"
 
@@ -57,6 +56,7 @@ class Wordnik(object):
 
     @staticmethod
     def _format_url_args(path, **kws):
+        """Convert KWargs to URL parameters without altering spaces etc."""
         if kws:
             args = ['%s=%s' % (arg, val) for (arg, val) in kws.items() 
                     if val is not None]
@@ -83,7 +83,7 @@ class Wordnik(object):
         if result.status != httplib.OK:
             try:
                 raise RestfulError(retval["message"])
-            except (TypeError, ), error:
+            except TypeError:
                 raise RestfulError(retval.find("message").text)
 
         return retval 
@@ -221,7 +221,6 @@ class Wordnik(object):
           ...
           </words>
         """
-        #TODO: It seems a little messy to pass around and handle None
         all_types = [None, "synonym", "antonym", "form", "equivalent", 
                      "hyponym", "variant"]
         if type_ in all_types:
@@ -337,11 +336,7 @@ class Wordnik(object):
                     min_dictionary_count=None, max_dictionary_count=None, 
                     min_length=None, max_length=None, skip=None, limit=None,
                     format_=None):
-        """Fetch words matching `query` and other optional constraints.
-        
-        TODO: KWargs
-        TODO: example
-        """
+        """Fetch words matching `query` and other optional constraints."""
         if include_pos is not None:
             if not isinstance(include_pos, basestring):
                 include_pos = ','.join(include_pos)
@@ -356,8 +351,6 @@ class Wordnik(object):
             maxDictionaryCount=max_dictionary_count, minLength=min_length, 
             maxLength=max_length, skip=skip, limit=limit)
 
-        # Return an empty list if the search fails.
-        # TODO: Find a way to only catch search failure errors
         try:
             ret = self._get(request_uri, format_=format_)
         except RestfulError:
