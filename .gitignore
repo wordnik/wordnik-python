@@ -2,9 +2,5 @@
 *.pyo
 *.swp
 *#
-/api_docs/build
-/.installed.cfg
-/bin/
-/develop-eggs/
-/eggs/
-/src/wordnik.egg-info/
+
+/build
