@@ -14,7 +14,6 @@ try:
 except ImportError:
     import json
 import httplib
-import urllib
 from optparse import OptionParser
 from xml.etree import ElementTree
 from pprint import pprint
