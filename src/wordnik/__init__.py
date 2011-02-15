@@ -25,11 +25,13 @@ class InvalidRelationType(Exception):
 
 PARTS_OF_SPEECH = ['noun', 'verb', 'adjective', 'adverb', 'idiom', 'article', 'abbreviation', 'preposition', 'prefix', 'interjection','suffix', 'conjunction', 'adjective_and_adverb', 'noun_and_adjective',  'noun_and_verb_transitive', 'noun_and_verb', 'past_participle', 'imperative', 'noun_plural', 'proper_noun_plural', 'verb_intransitive', 'proper_noun', 'adjective_and_noun',   'imperative_and_past_participle', 'pronoun', 'verb_transitive', 'noun_and_verb_intransitive', 'adverb_and_preposition','proper_noun_posessive','noun_posessive']
 
+
 FORMAT_JSON = "json"
 FORMAT_XML = "xml"
 
 class Wordnik(object):
     """ Wordnik API object """
+
 
     def __init__(self, api_key, default_format=FORMAT_JSON):
         self.api_key = api_key
@@ -66,6 +68,50 @@ class Wordnik(object):
                 raise RestfulError(retval.find("message").text)
 
         return retval 
+
+    def multi(self, calls, format=None):
+        """
+        Interface to the Wordnik batch API.
+
+        Sample Response:
+            {u'responseItems':
+              [
+                {u'responseName':
+                   u'dog/definitions',
+                 u'responsePosition':
+                   1,
+                 u'responseContent':
+                  [
+                    {u'text':
+                       u'A domesticated carnivorous mammal ...',
+                     u'word':
+                       u'dog',
+                     u'partOfSpeech':
+                       u'noun',
+                     u'sequence':
+                       u'0'}
+                  ]
+                }
+              ]
+            }
+        Params:
+            calls : list of tuples:
+                [ (word, resource, limit), (word, resource, limit) ... ]
+        e.g. Wordnik.multi( [ ('dog', 'definitions', 1) ] )
+        """
+
+        request_uri = "/v4/word.%s?multi=true"
+        callsMade = 0
+        for call in calls:
+            word = call[0]
+            resource = call[1]
+            limit = call[2]
+            request_uri += "&resource.%s=%s/%s&limit.%s=%s" % (callsMade, word, resource, callsMade, limit)
+            callsMade += 1
+
+        return self._get(request_uri, format=format)
+
+        # /word.json?multi=true&resource.0=cat/definitions&limit.0=1&resource.1=cat/examples&limit.1=1&resource.2=dog/definitions&limit.2=1&resource.3=dog/examples&limit.3=1
 
     def word(self, word, format=None):
         """Returns a word from wordnik if it is in the corpus.
@@ -361,6 +407,26 @@ class Wordnik(object):
         request_uri = "/v4/word.%%s/%s/pronunciations" % (word, )
         return self._get(request_uri, format=format)
 
+    def audio(self, word, format=None, useCanonical=None, limit=None):
+        """Fetch an audio pronunciation of a word (an expiring link is returned
+
+        Sample response:
+
+        [
+          {
+            "id": 9904,
+            "word": "cat",
+            "createdAt": "2009-03-15T15:32:01.000+0000",
+            "commentCount": 0,
+            "createdBy": "ahd",
+            "fileUrl": "http://api.wordnik.com/v4/audioFile.mp3/81402c8700312eb232bef08ffc45ef997df561a2aa44f0b4e13101b5aacad223"
+          }
+        ]
+
+        """
+        request_uri = "/v4/word.%%s/%s/audio" % (word, )
+        return self._get(request_uri, format=format)
+
 def main(args):
 
     parser = OptionParser()
@@ -382,7 +448,7 @@ def main(args):
                       metavar="CHOICE"
                       )
 
-    parser.set_defaults(format=Wordnik.FORMAT_JSON)
+    parser.set_defaults(format=FORMAT_JSON)
     parser.set_defaults(api_key=u"")
 
     options, args = parser.parse_args(args[1:])
