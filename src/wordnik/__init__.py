@@ -105,7 +105,10 @@ class Wordnik(object):
         for call in calls:
             word = call[0]
             resource = call[1]
-            limit = call[2]
+            if len(call) < 3:
+                limit = None
+            else:
+                limit = call[2]
             request_uri += "&resource.%s=%s/%s&limit.%s=%s" % (callsMade, word, resource, callsMade, limit)
             callsMade += 1
 
