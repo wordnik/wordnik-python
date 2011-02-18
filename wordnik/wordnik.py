@@ -31,27 +31,34 @@ DEFAULT_HOST = "api.wordnik.com"
 DEFAULT_URI  = "/v4"
 DEFAULT_URL  = "http://" + DEFAULT_HOST + DEFAULT_URI
 
+def generate_docs(params):
+    docstring = ""
+    for param in params:
+        name = param.get('name') or 'body'
+        summary = param.get('summary')
+        paramType = param.get('type')
+        required = "required" if param.get('required') else "optional"
+        allowable = param.get('allowableValues')
+        paramDoc = "{0} ({1}): {2}\n".format(name, required, paramType)
+        paramDoc += "{0}\n".format(summary)
+        docstring += paramDoc
+    return docstring
+        
+    
 class Wordnik(object):
     
-    FUNC_LOOKUP     = {}
-    DEFAULT_FORMAT  = 'json'
-    FORMATTERS      = {
-                        'json': json.loads,
-                        'xml':  ElementTree.fromstring,
-                      }
-
-    def __init__(self, api_key=None, format=DEFAULT_FORMAT, url=DEFAULT_URL):
+    def __init__(self, api_key=None):
         if api_key is None:
             raise NoAPIKey("No API key passed to our constructor")
         
-        self.url     = url
-        self.api_key = api_key
-
+        self.__api_key = api_key
+        
         import _methods
         self.populate_methods(_methods.api_methods)
         
 
     def populate_methods(self, wordnik_api_methods):
+        """This will create all the methods we need to interact with the Wordnik API"""
         resources = wordnik_api_methods.keys()
         for resource in resources:
             self._create_methods(wordnik_api_methods[resource])
@@ -75,6 +82,9 @@ class Wordnik(object):
         return Wordnik._convert(p)
         
     def _create_methods(self, jsn):
+        """A helper method that will populate this module's namespace
+        with methods (parsed directlly from the Wordnik API's output)
+        """
         endpoints = jsn['endPoints']
 
         for method in endpoints:
@@ -83,18 +93,27 @@ class Wordnik(object):
                 summary = op['summary']
                 httpmethod = op['httpMethod'].lower()
                 params = op['parameters']
+                response = op['response']
 
-            methodName = Wordnik._normalize(path, httpmethod)
-            #print "{0} :: {1}".format(m, path)
+                methodName = Wordnik._normalize(path, httpmethod)
+                ## a path like: /user.{format}/{username}/wordOfTheDayList/{permalink} (GET)
+                ## will get translated into method: get_user_word_of_the_day_list
 
-            wm = WordnikMethod(methodName)
-            wm.setMethodParams(params)
-            wm.setMethodPath(path)
-            wm.setApiKey(self.api_key)
-            setattr( self, methodName, wm )
+                wm = WordnikMethod(methodName)
+                wm.setMethodParams(params)
+                wm.setMethodPath(path)
+                wm.setApiKey(self.__api_key)
+                docs = generate_docs(params)
+                wm.__doc__ = docs
+                setattr( Wordnik, methodName, wm )
             
+     
           
 class WordnikMethod(object):
+    
+    """
+    A generic Wordnik HTTP method
+    """
     
     positional_args_re = re.compile('{([\w]+)}')
     DEFAULT_FORMAT  = 'json'
@@ -115,18 +134,21 @@ class WordnikMethod(object):
         return self._do_http(path, headers, body, self.key)
         
     def findMissingPathParams(self, path):
+        """This will check to make sure there are no un-substituted params
+        e.g. /word.json/{word}
+        """
         if self.positional_args_re.search(path):
             matches = self.positional_args_re.findall(path)
             missingParams = ", ".join(matches)
-            #print path
             raise MissingParameters("Could not substitute some parameters: {0}".format(missingParams))
-        ## get args
-        ## call http_get
+        
         
     def setMethodPath(self, path):
+        """Set the API path for this method"""
         self.path = path
 
     def setMethodParams(self, params):
+        """Set parameters for this method"""
         for param in params:
             if 'name' in param:
                 self.params[param['name']] = param
@@ -134,10 +156,12 @@ class WordnikMethod(object):
                 self.params['body'] = param
     
     def setApiKey(self, key):
+        """Set the API key"""
         self.key = key
     
     @staticmethod
     def _do_http(uri, headers, body, key):
+        """This wraps the HTTP call. This may get factored out in the future."""
         url = DEFAULT_URL + uri
         if 'api_key' not in headers:
             headers.update( {'api_key': key} )
@@ -146,6 +170,9 @@ class WordnikMethod(object):
         
         
     def _processArgs(self, args, kwargs):
+        """This does all the path substitution and the population of the
+        headers and/or body, based on positional and keyword arguments.
+        """
         ## get "{format} of of the way first"
         format = kwargs.get('format') or self.DEFAULT_FORMAT
         path = self.path.replace('{format}', format) + "?"
@@ -161,8 +188,10 @@ class WordnikMethod(object):
             bracketedString = "{" + arg + "}"
             pathPattern = re.compile(bracketedString)
             path = pathPattern.sub(value, path)
+            ## we want to remove this item from kwargs (we already used it!)
             kwargs.pop(arg)
         
+        ## if we need to set the HTTP body, we do it in kwargs
         if 'body' in kwargs:
             self.body = urllib.urlencode(kwargs.pop('body'))
             
@@ -172,9 +201,8 @@ class WordnikMethod(object):
                 path += "{0}={1}&".format(arg, kwargs[arg])
             else:
                 self.headers[arg] = kwargs[arg]
-        ## paramType: "body"
-        ## paramType: "path"
-        # return( path, headers, body )
+        
+        ## return a 3-tuple of (<URI path>, <headers>, <body>)
         return (path, self.headers, self.body)
         
         
