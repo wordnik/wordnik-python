@@ -96,8 +96,8 @@ class Wordnik(object):
             }
         Params:
             calls : list of tuples:
-                [ (word, resource, limit), (word, resource, limit) ... ]
-        e.g. Wordnik.multi( [ ('dog', 'definitions', 1) ] )
+                [ (word, resource, {key1: value1 ...}) ... ]
+        e.g. Wordnik.multi( [ ('dog', 'related', {"type": "synonym"} ) ] )
         """
 
         request_uri = "/v4/word.%s?multi=true"
@@ -105,16 +105,16 @@ class Wordnik(object):
         for call in calls:
             word = call[0]
             resource = call[1]
-            if len(call) < 3:
-                limit = None
+            if len(call) >= 3:
+                otherParams = call[2]
             else:
-                limit = call[2]
-            request_uri += "&resource.%s=%s/%s&limit.%s=%s" % (callsMade, word, resource, callsMade, limit)
+                otherParams = {}
+            request_uri += "&resource.%s=%s/%s" % (callsMade,word,resource)
+            for key,val in otherParams.items():
+                request_uri += "&%s.%s=%s" % (key, callsMade, val)
             callsMade += 1
 
         return self._get(request_uri, format=format)
-
-        # /word.json?multi=true&resource.0=cat/definitions&limit.0=1&resource.1=cat/examples&limit.1=1&resource.2=dog/definitions&limit.2=1&resource.3=dog/examples&limit.3=1
 
     def word(self, word, format=None):
         """Returns a word from wordnik if it is in the corpus.
