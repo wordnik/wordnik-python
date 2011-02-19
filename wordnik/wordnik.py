@@ -14,6 +14,10 @@ from optparse import OptionParser
 from xml.etree import ElementTree
 from pprint import pprint
 
+DEFAULT_HOST   = "api.wordnik.com"
+DEFAULT_URI    = "/v4"
+DEFAULT_URL    = "http://" + DEFAULT_HOST + DEFAULT_URI
+DEFAULT_FORMAT = "json"
 
 class RestfulError(Exception):
     """Raised when response from REST API indicates an error has occurred."""
@@ -27,23 +31,46 @@ class NoAPIKey(Exception):
 class MissingParameters(Exception):
     """Raised if we try to call an API method with required parameters missing"""
     
-DEFAULT_HOST = "api.wordnik.com"
-DEFAULT_URI  = "/v4"
-DEFAULT_URL  = "http://" + DEFAULT_HOST + DEFAULT_URI
-
-def generate_docs(params):
-    docstring = ""
+def generate_docs(params, response, summary):
+    docstring = "{0}\n".format(summary)
     for param in params:
-        name = param.get('name') or 'body'
-        summary = param.get('summary')
-        paramType = param.get('type')
-        required = "required" if param.get('required') else "optional"
+        name      = param.get('name') or 'body'
         allowable = param.get('allowableValues')
-        paramDoc = "{0} ({1}): {2}\n".format(name, required, paramType)
-        paramDoc += "{0}\n".format(summary)
+        required  = "required" if param.get('required') else "optional"
+        allowable = param.get('allowableValues')
+        paramDoc  = "{0} ({1}): {2}\n".format(name, required, allowable)
         docstring += paramDoc
     return docstring
-        
+
+def generate_repr(params):
+    posArgs = list()
+    kwArgs  = list()
+    for param,args in params.items():
+        if param == 'format':
+            continue
+        if args['paramType'] == 'path':
+            posArgs.append(param)
+        else:
+            kwArgs.append("{0}={1}".format(param, args.get('allowableValues') or '<value>'))
+    kwArgs.append("format={0}".format(DEFAULT_FORMAT))
+    args = posArgs + kwArgs
+    return "({0})".format(", ".join(args))
+    
+def _convert(name):
+    s1 = re.sub('(.)([A-Z][a-z]+)', r'\1_\2', name)
+    return re.sub('([a-z0-9])([A-Z])', r'\1_\2', s1).lower()
+
+def _normalize(path, method):
+    param_re = re.compile('{[\w]+}')
+    under_re = re.compile('(^[_]+|[_]+$)')
+    un_camel_re = re.compile('[a-z]([A-Z])')
+    repeat_under_re = re.compile('[_]+')
+    
+    p = method + '_' + path.replace('/', '_').replace('.', '_')
+    p = param_re.subn('', p)[0]
+    p = under_re.subn('', p)[0]
+    p = repeat_under_re.subn('_', p)[0]
+    return _convert(p)
     
 class Wordnik(object):
     
@@ -51,36 +78,17 @@ class Wordnik(object):
         if api_key is None:
             raise NoAPIKey("No API key passed to our constructor")
         
-        self.__api_key = api_key
+        self._api_key = api_key
         
         import _methods
         self.populate_methods(_methods.api_methods)
-        
-
+   
     def populate_methods(self, wordnik_api_methods):
         """This will create all the methods we need to interact with the Wordnik API"""
         resources = wordnik_api_methods.keys()
         for resource in resources:
             self._create_methods(wordnik_api_methods[resource])
     
-    @staticmethod
-    def _convert(name):
-        s1 = re.sub('(.)([A-Z][a-z]+)', r'\1_\2', name)
-        return re.sub('([a-z0-9])([A-Z])', r'\1_\2', s1).lower()
-
-    @staticmethod
-    def _normalize(path, method):
-        param_re = re.compile('{[\w]+}')
-        under_re = re.compile('(^[_]+|[_]+$)')
-        un_camel_re = re.compile('[a-z]([A-Z])')
-        repeat_under_re = re.compile('[_]+')
-        
-        p = method + '_' + path.replace('/', '_').replace('.', '_')
-        p = param_re.subn('', p)[0]
-        p = under_re.subn('', p)[0]
-        p = repeat_under_re.subn('_', p)[0]
-        return Wordnik._convert(p)
-        
     def _create_methods(self, jsn):
         """A helper method that will populate this module's namespace
         with methods (parsed directlly from the Wordnik API's output)
@@ -95,15 +103,15 @@ class Wordnik(object):
                 params = op['parameters']
                 response = op['response']
 
-                methodName = Wordnik._normalize(path, httpmethod)
+                methodName = _normalize(path, httpmethod)
                 ## a path like: /user.{format}/{username}/wordOfTheDayList/{permalink} (GET)
                 ## will get translated into method: get_user_word_of_the_day_list
 
                 wm = WordnikMethod(methodName)
                 wm.setMethodParams(params)
                 wm.setMethodPath(path)
-                wm.setApiKey(self.__api_key)
-                docs = generate_docs(params)
+                wm.setApiKey(self._api_key)
+                docs = generate_docs(params, response, summary)
                 wm.__doc__ = docs
                 setattr( Wordnik, methodName, wm )
             
@@ -116,22 +124,24 @@ class WordnikMethod(object):
     """
     
     positional_args_re = re.compile('{([\w]+)}')
-    DEFAULT_FORMAT  = 'json'
     
     def __init__(self, name, key=None):
-        self.name    = name
-        self.key     = key
-        self.params  = dict()
+        self.name     = name
+        self.__name__ = name
+        self.key      = key
+        self.params   = dict()
         
-        self.path    = None
-        self.body    = None
-        self.headers = dict()
-        
+        self.path     = None
+        self.body     = None
+        self.headers  = dict()
         
     def __call__(self, *args, **kwargs):
         (path, headers, body) = self._processArgs(args, kwargs)
         self.findMissingPathParams(path)
         return self._do_http(path, headers, body, self.key)
+        
+    def __repr__(self):
+        return generate_repr(self.params)
         
     def findMissingPathParams(self, path):
         """This will check to make sure there are no un-substituted params
@@ -174,7 +184,7 @@ class WordnikMethod(object):
         headers and/or body, based on positional and keyword arguments.
         """
         ## get "{format} of of the way first"
-        format = kwargs.get('format') or self.DEFAULT_FORMAT
+        format = kwargs.get('format') or DEFAULT_FORMAT
         path = self.path.replace('{format}', format) + "?"
         
         ## substiture the positional arguments, left-to-right
