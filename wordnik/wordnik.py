@@ -32,14 +32,26 @@ class MissingParameters(Exception):
     """Raised if we try to call an API method with required parameters missing"""
     
 def generate_docs(params, response, summary):
-    docstring = "{0}\n".format(summary)
+    docstring = "{0}\n\n".format(summary)
+    docstring += "Parameters:\n"
     for param in params:
         name      = param.get('name') or 'body'
         allowable = param.get('allowableValues')
         required  = "required" if param.get('required') else "optional"
-        allowable = param.get('allowableValues')
-        paramDoc  = "{0} ({1}): {2}\n".format(name, required, allowable)
+        allowable = param.get('allowableValues') or ''
+        paramDoc  = "  {0} ({1}): {2}\n".format(name, required, allowable)
         docstring += paramDoc
+    docstring += "\nResponse:\n\n"
+    
+    for r in response:
+        name = r['valueType'] or "FOO"
+        errors = r['errorResponses']
+        condition = r['condition']
+        docstring += "  {0} ({1})".format(name, condition)
+        for error in errors:
+            reason = error['reason']
+            code = error['code']
+            docstring += "    {0}: {1}\n".format(code, reason)
     return docstring
 
 def generate_repr(params):
@@ -55,7 +67,14 @@ def generate_repr(params):
     kwArgs.append("format={0}".format(DEFAULT_FORMAT))
     args = posArgs + kwArgs
     return "({0})".format(", ".join(args))
-    
+
+def create_method(name, doc):
+    def _method(self, *args, **kwds):
+        self._run_command(name, *args, **kwds)
+    _method.__doc__ = doc
+    _method.__name__ = name
+    return _method
+
 def _convert(name):
     s1 = re.sub('(.)([A-Z][a-z]+)', r'\1_\2', name)
     return re.sub('([a-z0-9])([A-Z])', r'\1_\2', s1).lower()
