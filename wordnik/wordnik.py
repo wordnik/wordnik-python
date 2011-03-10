@@ -78,6 +78,7 @@ def process_args(path, params, args, kwargs):
     format = kwargs.get('format') or DEFAULT_FORMAT
     path = path.replace('{format}', format) + "?"
 
+    ## words with spaces and punctuation XXX
     ## substiture the positional arguments, left-to-right
     for arg in args:
         path = positional_args_re.sub(arg, path, count=1)
