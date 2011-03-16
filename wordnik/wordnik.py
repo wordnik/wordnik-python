@@ -1,6 +1,8 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
+## all the methods you see called (as if by magic) are in here.
+from helpers import *
 
 """Python wrapper for the Wordnik API. 
 
@@ -9,7 +11,7 @@ This API implements all the methods described at http://developer.wordnik.com/do
 maintainer: Robin Walsh (robin@wordnik.com)
 """
 
-import json, re, sys, urllib, urllib2
+import json, urllib, urllib2
 from optparse import OptionParser
 from xml.etree import ElementTree
 from pprint import pprint
@@ -31,124 +33,6 @@ class NoAPIKey(Exception):
 class MissingParameters(Exception):
     """Raised if we try to call an API method with required parameters missing"""
     
-def generate_docs(params, response, summary, path):
-    docstring   = "{0}\n".format(summary)
-    docstring  += "{0}\n".format(path)
-    
-    pathParams  = [ p for p in params if p['paramType'] == "path" and p.get('name') != "format" ]
-    if pathParams:
-        docstring += "\nPath Parameters:\n"
-    for param in pathParams:
-        name      = param.get('name') or 'body'
-        paramDoc  = "  {0}\n".format(name)
-        docstring += paramDoc
- 
-    
-    otherParams = [ p for p in params if p['paramType'] != "path" ]
-    if otherParams:
-        docstring += "\nOther Parameters:\n"
-    for param in otherParams:
-        name      = param.get('name') or 'body'
-        paramDoc  = "  {0}\n".format(name)
-        docstring += paramDoc
-
-    return docstring
-
-def create_method(name, doc, params, path):
-    def _method(self, *args, **kwargs):
-        return self._run_command(name, *args, **kwargs)
-    
-    _method.__doc__  = str(doc)
-    _method.__name__ = str(name)
-    _method._path    = path
-    _method._params  = params
-    
-    return _method
-
-def process_args(path, params, args, kwargs):
-    """This does all the path substitution and the population of the
-    headers and/or body, based on positional and keyword arguments.
-    """
-    
-    positional_args_re  = re.compile('{([\w]+)}')
-    headers             = {}
-    body                = None
-    
-    ## get "{format} of of the way first"
-    format = kwargs.get('format') or DEFAULT_FORMAT
-    path = path.replace('{format}', format) + "?"
-
-    ## words with spaces and punctuation XXX
-    ## substiture the positional arguments, left-to-right
-    for arg in args:
-        path = positional_args_re.sub(arg, path, count=1)
-
-    ## now look through the keyword args and do path substitution
-    for arg,value in kwargs.items():
-        if arg not in path:
-            continue
-        bracketedString = "{" + arg + "}"
-        pathPattern = re.compile(bracketedString)
-        path = pathPattern.sub(value, path)
-        ## we want to remove this item from kwargs (we already used it!)
-        kwargs.pop(arg)
-
-    ## if we need to set the HTTP body, we do it in kwargs
-    if 'body' in kwargs:
-        body = urllib.urlencode(kwargs.pop('body'))
-    
-    ## handle additional query and header args
-    for arg in kwargs:
-        if arg in params and params[arg]['paramType'] == 'query':
-            path += "{0}={1}&".format(arg, kwargs[arg])
-        else:
-            headers[arg] = kwargs[arg]
-
-    ## return a 3-tuple of (<URI path>, <headers>, <body>)
-    return (path, headers, body)
-
-def _convert(name):
-    s1 = re.sub('(.)([A-Z][a-z]+)', r'\1_\2', name)
-    return re.sub('([a-z0-9])([A-Z])', r'\1_\2', s1).lower()
-
-def _normalize(path, method):
-    param_re = re.compile('{[\w]+}')
-    under_re = re.compile('(^[_]+|[_]+$)')
-    un_camel_re = re.compile('[a-z]([A-Z])')
-    repeat_under_re = re.compile('[_]+')
-    
-    p = method + '_' + path.replace('/', '_').replace('.', '_')
-    p = param_re.subn('', p)[0]
-    p = under_re.subn('', p)[0]
-    p = repeat_under_re.subn('_', p)[0]
-    return _convert(p)
-
-def dictify(params):
-    p = {}
-    for param in params:
-        if 'name' in param:
-            p[param['name']] = param
-        else:
-            p['body'] = param
-
-    return p
-
-def find_missing_path_params(self, path):
-    """This will check to make sure there are no un-substituted params
-    e.g. /word.json/{word}
-    """
-    if self.positional_args_re.search(path):
-        matches = self.positional_args_re.findall(path)
-        missingParams = ", ".join(matches)
-        raise MissingParameters("Could not substitute some parameters: {0}".format(missingParams))
-
-
-def _do_http(uri, headers, body=None):
-    """This wraps the HTTP call. This may get factored out in the future."""
-    url = DEFAULT_URL + uri
-    request = urllib2.Request(url, body, headers)
-    return urllib2.urlopen(request).read()
-        
 class Wordnik(object):
     
     """
@@ -164,16 +48,16 @@ class Wordnik(object):
     So we can skip format (default format is JSON) and infer that the first
     positional argument is the word we want examples for. Hence:
     
-    Wordnik.get_word_examples('cat')
+    Wordnik.word_get_examples('cat')
     
     All other (non-path) arguments are keyword arguments. The "format"
     paramater can be passed in this way as well. Hence:
     
-    Wordnik.get_word_examples('cat', format='xml', limit=500)
+    Wordnik.word_get_examples('cat', format='xml', limit=500)
     
     In the case where you're making a POST, you will need a "body" keyword:
     
-    Wordnik.put_word_list(wordListId=1234, body="Some HTTP body")    
+    Wordnik.word_list_put(wordListId=1234, body="Some HTTP body")    
     """
     
     
@@ -216,8 +100,8 @@ class Wordnik(object):
                 response = op['response']
     
                 ## a path like: /user.{format}/{username}/wordOfTheDayList/{permalink} (GET)
-                ## will get translated into method: get_user_word_of_the_day_list
-                methodName = _normalize(path, httpmethod)
+                ## will get translated into method: user_get_word_of_the_day_list
+                methodName = normalize(path, httpmethod)
                         
                 docs = generate_docs(params, response, summary, path)
                 m = create_method(methodName, docs, dictify(params), path)
@@ -256,9 +140,9 @@ class Wordnik(object):
                 otherParams = call[2]
             else:
                 otherParams = {}
-            path += "&resource.%s=%s/%s" % (callsMade,word,resource)
+            path += "&resource.{0}={1}/{2}".format(callsMade,word,resource)
             for key,val in otherParams.items():
-                path += "&%s.%s=%s" % (key, callsMade, val)
+                path += "&{0}.{1}={2}".format(key, callsMade, val)
             callsMade += 1
         
         headers = { "api_key": self._api_key }
