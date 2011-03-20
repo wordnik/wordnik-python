@@ -1,8 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-## all the methods you see called (as if by magic) are in here.
-from helpers import *
+import helpers
 
 """Python wrapper for the Wordnik API. 
 
@@ -101,18 +100,20 @@ class Wordnik(object):
     
                 ## a path like: /user.{format}/{username}/wordOfTheDayList/{permalink} (GET)
                 ## will get translated into method: user_get_word_of_the_day_list
-                methodName = normalize(path, httpmethod)
-                        
-                docs = generate_docs(params, response, summary, path)
-                m = create_method(methodName, docs, dictify(params), path)
-                setattr( Wordnik, methodName, m )
+                methodName  = helpers.normalize(path, httpmethod)
+                docs        = helpers.generate_docs(params, response, summary, path)
+                method      = helpers.create_method(methodName, docs, helpers.dictify(params), path)
+                
+                setattr( Wordnik, methodName, method )
     
     def _run_command(self, command_name, *args, **kwargs):
         if 'api_key' not in kwargs:
             kwargs.update( {"api_key": self._api_key} )
-        command = getattr(self, command_name)
-        (path, headers, body) = process_args(command._path, command._params, args, kwargs)
-        return _do_http(path, headers, body)
+        
+        command                 = getattr(self, command_name)
+        (path, headers, body)   = helpers.process_args(command._path, command._params, args, kwargs)
+        
+        return self._do_http(path, headers, body)
     
     def multi(self, calls, **kwargs):
         """Multiple calls, batched. This is a "special case" method
@@ -130,7 +131,8 @@ class Wordnik(object):
         
         """
         
-        path = "/word.%s?multi=true" % (kwargs.get('format') or DEFAULT_FORMAT,)
+        path = "/word.%s?multi=true" % (kwargs.get('format') or DEFAULT_FORMAT)
+        
         
         callsMade = 0
         for call in calls:
@@ -140,12 +142,27 @@ class Wordnik(object):
                 otherParams = call[2]
             else:
                 otherParams = {}
+            ## Add the first resource to the URL
             path += "&resource.{0}={1}/{2}".format(callsMade,word,resource)
             for key,val in otherParams.items():
+                ## Add potential extra params to the URL
                 path += "&{0}.{1}={2}".format(key, callsMade, val)
             callsMade += 1
         
         headers = { "api_key": self._api_key }
-        return _do_http(path, headers)
         
-Wordnik._populate_methods()
+        return self._do_http(path, headers)
+    
+    @staticmethod
+    def _do_http(uri, headers, body=None):
+        """This wraps the HTTP call. This may get factored out in the future."""
+        url = DEFAULT_URL + uri
+        request = urllib2.Request(url, body, headers)
+        try:
+            return urllib2.urlopen(request).read()
+        except urllib2.HTTPError as e:
+            code, msg = e.code, e.msg
+            print "{0}: {1}".format(code, msg)
+            return None
+                
+                

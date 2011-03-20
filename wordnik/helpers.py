@@ -1,4 +1,5 @@
-import re
+import re, urllib, urllib2, wordnik
+import wordnik
 
 def generate_docs(params, response, summary, path):
     """This will generate the documentation for a function given some information
@@ -41,16 +42,24 @@ def process_args(path, params, args, kwargs):
     """This does all the path substitution and the population of the
     headers and/or body, based on positional and keyword arguments.
     """
+
+    required_params = [ p for p in params if params[p]['required'] and p != 'format' and  params[p]['paramType'] != 'path' ]
+    given_params = kwargs.keys()
+    
+    if not set(given_params).issuperset(set(required_params)):
+        notsupplied = set(given_params).symmetric_difference(set(required_params)).intersection(set(required_params))
+        raise wordnik.MissingParameters("Some required parameters are missing: {0}".format(notsupplied))
+        
+    
     
     positional_args_re  = re.compile('{([\w]+)}')
     headers             = {}
     body                = None
     
     ## get "{format} of of the way first"
-    format = kwargs.get('format') or DEFAULT_FORMAT
+    format = kwargs.get('format') or wordnik.DEFAULT_FORMAT
     path = path.replace('{format}', format) + "?"
 
-    ## words with spaces and punctuation XXX
     ## substiture the positional arguments, left-to-right
     for arg in args:
         path = positional_args_re.sub(arg, path, count=1)
@@ -76,6 +85,17 @@ def process_args(path, params, args, kwargs):
         else:
             headers[arg] = kwargs[arg]
 
+    ## If we still have any unsubstituted params in the path, we need to 
+    ## raise an exception.
+    
+    if positional_args_re.search(path):
+        raise wordnik.MissingParameters("Some required parameters are missing: {0}".format(path))
+    
+    ## similarly, raise and exception if we're missing a keyword arg.
+    for param in params.keys():
+        if params[param]['paramType'] == 'body' and body == None:
+            raise wordnik.MissingParameters("Some required parameters are missing: {0}".format(param))
+    
     ## return a 3-tuple of (<URI path>, <headers>, <body>)
     return (path, headers, body)
 
@@ -126,8 +146,3 @@ def find_missing_path_params(self, path):
         raise MissingParameters("Could not substitute some parameters: {0}".format(missingParams))
 
 
-def _do_http(uri, headers, body=None):
-    """This wraps the HTTP call. This may get factored out in the future."""
-    url = DEFAULT_URL + uri
-    request = urllib2.Request(url, body, headers)
-    return urllib2.urlopen(request).read()

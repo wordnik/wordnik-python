@@ -9,4 +9,5 @@ setup(name='wordnik',
       author_email='apiteam@wordnik.com',
       url='http://developer.wordnik.com',
       py_modules=['wordnik'],
+#      test_suite = 'unittest.collector'
 )
