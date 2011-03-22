@@ -10,7 +10,6 @@ setup(
     author_email='robin@wordnik.com',
     test_suite = "nose.collector",
     url='http://developer.wordnik.com',
-    exclude_package_data = { '': ['test_*'] },
     packages = ['wordnik'],
     setup_requires=['nose>=0.11']
 )

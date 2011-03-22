@@ -117,13 +117,13 @@ def process_args(path, params, args, kwargs):
 
     ## if we need to set the HTTP body, we do it in kwargs
     if 'body' in kwargs:
-        body = urllib.urlencode(kwargs.pop('body'))
+        body = urllib.urlencode(kwargs.pop('body').__str__())
     
     ## handle additional query args
     for param in query_params:
         name = param.get('name')
         if name in kwargs:
-            path += "{0}={1}&".format(name, urllib.quote(kwargs.pop(name)))
+            path += "{0}={1}&".format(name, urllib.quote(kwargs.pop(name).__str__()))
 
     
     ## put all remaining kwargs in the headers
