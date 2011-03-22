@@ -4,10 +4,10 @@ from setuptools import setup, find_packages
 
 setup(
     name='wordnik',
-    version="0.3",
+    version="0.5.0",
     description='Simple wrapper around the wordnik API',
-    author='Wordnik API Team',
-    author_email='apiteam@wordnik.com',
+    author='Robin Walsh',
+    author_email='robin@wordnik.com',
     test_suite = "nose.collector",
     url='http://developer.wordnik.com',
     exclude_package_data = { '': ['test_*'] },

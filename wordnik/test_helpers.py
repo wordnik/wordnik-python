@@ -59,22 +59,22 @@ Other Parameters:
         self.assertRaises(TypeError, self.h.process_args, path, params)
         self.assertRaises(TypeError, self.h.process_args, path, params, [])
 
-        expectedPath = "/fake.json/fakeParam/path?"
+        expectedPath = """/fake.json/fake%20Param/path?"""
         expectedHeaders = {}
         expectedBody = None
 
-        self.assertEqual(self.h.process_args(path, params, [], { "parameter": "fakeParam"} ),
+        self.assertEqual(self.h.process_args(path, params, [], { "parameter": "fake Param"} ),
                          (expectedPath, expectedHeaders, expectedBody) )
         
         expectedBody = "key=value"
         
-        self.assertEqual(self.h.process_args(path, params, [], { "parameter": "fakeParam", "body": {"key": "value"}} ),
+        self.assertEqual(self.h.process_args(path, params, [], { "parameter": "fake Param", "body": {"key": "value"}} ),
                          (expectedPath, expectedHeaders, expectedBody) )
         expectedBody = None
-        expectedPath = "/fake.json/fakeParam/path?includeAll=True&"
+        expectedPath = "/fake.json/fakeParam/path?includeAll=true&"
         
         self.assertRaises(wordnik.MissingParameters, self.h.process_args,path,alt_params,[],{ "parameter": "fakeParam"})
-        self.assertEqual(self.h.process_args(path, alt_params, [], { "parameter": "fakeParam", "includeAll": True }  ),
+        self.assertEqual(self.h.process_args(path, alt_params, [], { "parameter": "fakeParam", "includeAll": "true" }  ),
                          (expectedPath, expectedHeaders, expectedBody) )
 
     def test_uncamel(self):

@@ -103,7 +103,7 @@ def process_args(path, params, args, kwargs):
     
     ## substiture the positional arguments, left-to-right
     for arg in args:
-        path = positional_args_re.sub(arg, path, count=1)
+        path = positional_args_re.sub(urllib.quote(arg), path, count=1)
 
     ## now look through the keyword args and do path substitution
     for arg,value in kwargs.items():
@@ -111,7 +111,7 @@ def process_args(path, params, args, kwargs):
             continue
         bracketedString = "{" + arg + "}"
         pathPattern = re.compile(bracketedString)
-        path = pathPattern.sub(value, path)
+        path = pathPattern.sub(urllib.quote(value), path)
         ## we want to remove this item from kwargs (we already used it!)
         kwargs.pop(arg)
 
@@ -123,12 +123,12 @@ def process_args(path, params, args, kwargs):
     for param in query_params:
         name = param.get('name')
         if name in kwargs:
-            path += "{0}={1}&".format(name, kwargs.pop(name))
+            path += "{0}={1}&".format(name, urllib.quote(kwargs.pop(name)))
 
     
     ## put all remaining kwargs in the headers
     for arg in kwargs:    
-        headers[arg] = kwargs[arg]
+        headers[arg] = urllib.quote(kwargs[arg])
 
     ## If we still have any unsubstituted params in the path, we need to 
     ## raise an exception.
