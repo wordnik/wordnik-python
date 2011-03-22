@@ -1,0 +1,414 @@
+
+<!doctype html PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+<html><head><title>Python: class Wordnik</title>
+</head><body bgcolor="#f0f0f8">
+<p>
+<table width="100%" cellspacing=0 cellpadding=2 border=0 summary="section">
+<tr bgcolor="#ffc8d8">
+<td colspan=3 valign=bottom>&nbsp;<br>
+<font color="#000000" face="helvetica, arial"><strong>wordnik.Wordnik</strong> = <a name="wordnik.Wordnik">class Wordnik</a>(<a href="__builtin__.html#object">__builtin__.object</a>)</font></td></tr>
+    
+<tr bgcolor="#ffc8d8"><td rowspan=2><tt>&nbsp;&nbsp;&nbsp;</tt></td>
+<td colspan=2><tt>A&nbsp;generic&nbsp;Wordnik&nbsp;object.&nbsp;Use&nbsp;me&nbsp;to&nbsp;interact&nbsp;with&nbsp;the&nbsp;Wordnik&nbsp;API.<br>
+&nbsp;<br>
+All&nbsp;of&nbsp;my&nbsp;methods&nbsp;can&nbsp;be&nbsp;called&nbsp;in&nbsp;multiple&nbsp;ways.&nbsp;All&nbsp;positional<br>
+arguments&nbsp;passed&nbsp;into&nbsp;one&nbsp;of&nbsp;my&nbsp;methods&nbsp;(with&nbsp;the&nbsp;exception&nbsp;of&nbsp;"format")<br>
+will&nbsp;be&nbsp;substituted&nbsp;for&nbsp;the&nbsp;correponding&nbsp;path&nbsp;parameter,&nbsp;if&nbsp;possible.<br>
+For&nbsp;example,&nbsp;consider&nbsp;the&nbsp;"get_word_examples"&nbsp;method.&nbsp;The&nbsp;URI&nbsp;path&nbsp;is:<br>
+&nbsp;<br>
+/word.{format}/{word}/examples<br>
+&nbsp;<br>
+So&nbsp;we&nbsp;can&nbsp;skip&nbsp;format&nbsp;(default&nbsp;format&nbsp;is&nbsp;JSON)&nbsp;and&nbsp;infer&nbsp;that&nbsp;the&nbsp;first<br>
+positional&nbsp;argument&nbsp;is&nbsp;the&nbsp;word&nbsp;we&nbsp;want&nbsp;examples&nbsp;for.&nbsp;Hence:<br>
+&nbsp;<br>
+Wordnik.<a href="#wordnik.Wordnik-get_word_examples">get_word_examples</a>('cat')<br>
+&nbsp;<br>
+All&nbsp;other&nbsp;(non-path)&nbsp;arguments&nbsp;are&nbsp;keyword&nbsp;arguments.&nbsp;The&nbsp;"format"<br>
+paramater&nbsp;can&nbsp;be&nbsp;passed&nbsp;in&nbsp;this&nbsp;way&nbsp;as&nbsp;well.&nbsp;Hence:<br>
+&nbsp;<br>
+Wordnik.<a href="#wordnik.Wordnik-get_word_examples">get_word_examples</a>('cat',&nbsp;format='xml',&nbsp;limit=500)<br>
+&nbsp;<br>
+In&nbsp;the&nbsp;case&nbsp;where&nbsp;you're&nbsp;making&nbsp;a&nbsp;POST,&nbsp;you&nbsp;will&nbsp;need&nbsp;a&nbsp;"body"&nbsp;keyword:<br>
+&nbsp;<br>
+Wordnik.<a href="#wordnik.Wordnik-put_word_list">put_word_list</a>(wordListId=1234,&nbsp;body="Some&nbsp;HTTP&nbsp;body")<br>&nbsp;</tt></td></tr>
+<tr><td>&nbsp;</td>
+<td width="100%">Methods defined here:<br>
+<dl><dt><a name="Wordnik-__init__"><strong>__init__</strong></a>(self, api_key<font color="#909090">=None</font>)</dt><dd><tt>Initialize&nbsp;a&nbsp;Wordnik&nbsp;object.&nbsp;You&nbsp;must&nbsp;pass&nbsp;in&nbsp;an&nbsp;API&nbsp;key&nbsp;when<br>
+you&nbsp;make&nbsp;a&nbsp;new&nbsp;Wordnik.&nbsp;We&nbsp;don't&nbsp;validate&nbsp;the&nbsp;API&nbsp;key&nbsp;until&nbsp;the<br>
+first&nbsp;call&nbsp;against&nbsp;the&nbsp;API&nbsp;is&nbsp;made,&nbsp;at&nbsp;which&nbsp;point&nbsp;you'll&nbsp;find<br>
+out&nbsp;if&nbsp;it's&nbsp;good.</tt></dd></dl>
+
+<dl><dt><a name="Wordnik-delete_user_word_of_the_day_list"><strong>delete_user_word_of_the_day_list</strong></a>(self, *args, **kwargs)</dt><dd><tt>Deletes&nbsp;a&nbsp;specific&nbsp;word&nbsp;from&nbsp;a&nbsp;user's&nbsp;WordOfTheDayList<br>
+/user.{format}/{username}/wordOfTheDayList/{permalink}/{wordToDelete}<br>
+&nbsp;<br>
+Path&nbsp;Parameters:<br>
+&nbsp;&nbsp;username<br>
+&nbsp;&nbsp;permalink<br>
+&nbsp;&nbsp;wordToDelete</tt></dd></dl>
+
+<dl><dt><a name="Wordnik-delete_word_list"><strong>delete_word_list</strong></a>(self, *args, **kwargs)</dt><dd><tt>Deletes&nbsp;an&nbsp;existing&nbsp;WordList<br>
+/wordList.{format}/{wordListId}<br>
+&nbsp;<br>
+Path&nbsp;Parameters:<br>
+&nbsp;&nbsp;wordListId</tt></dd></dl>
+
+<dl><dt><a name="Wordnik-get_account_api_token_status"><strong>get_account_api_token_status</strong></a>(self, *args, **kwargs)</dt><dd><tt>Returns&nbsp;usage&nbsp;statistics&nbsp;for&nbsp;the&nbsp;API&nbsp;account.<br>
+/account.{format}/apiTokenStatus<br>
+&nbsp;<br>
+Other&nbsp;Parameters:<br>
+&nbsp;&nbsp;api_key</tt></dd></dl>
+
+<dl><dt><a name="Wordnik-get_account_authenticate"><strong>get_account_authenticate</strong></a>(self, *args, **kwargs)</dt><dd><tt>Authenticates&nbsp;a&nbsp;User<br>
+/account.{format}/authenticate/{username}<br>
+&nbsp;<br>
+Path&nbsp;Parameters:<br>
+&nbsp;&nbsp;username<br>
+&nbsp;<br>
+Other&nbsp;Parameters:<br>
+&nbsp;&nbsp;password</tt></dd></dl>
+
+<dl><dt><a name="Wordnik-get_account_regenerate_api_token"><strong>get_account_regenerate_api_token</strong></a>(self, *args, **kwargs)</dt><dd><tt>Regenerates&nbsp;an&nbsp;API&nbsp;Token.&nbsp;&nbsp;Currently&nbsp;not&nbsp;supported&nbsp;or&nbsp;tested.<br>
+/account.{format}/regenerateApiToken<br>
+&nbsp;<br>
+Other&nbsp;Parameters:<br>
+&nbsp;&nbsp;api_key</tt></dd></dl>
+
+<dl><dt><a name="Wordnik-get_account_user"><strong>get_account_user</strong></a>(self, *args, **kwargs)</dt><dd><tt>Returns&nbsp;the&nbsp;logged-in&nbsp;User<br>
+/account.{format}/user<br>
+&nbsp;<br>
+Other&nbsp;Parameters:<br>
+&nbsp;&nbsp;auth_token</tt></dd></dl>
+
+<dl><dt><a name="Wordnik-get_account_username_available"><strong>get_account_username_available</strong></a>(self, *args, **kwargs)</dt><dd><tt>Returns&nbsp;an&nbsp;ApiResponse&nbsp;indicating&nbsp;whether&nbsp;or&nbsp;not&nbsp;a&nbsp;username&nbsp;is&nbsp;available<br>
+/account.{format}/usernameAvailable/{username}<br>
+&nbsp;<br>
+Path&nbsp;Parameters:<br>
+&nbsp;&nbsp;username</tt></dd></dl>
+
+<dl><dt><a name="Wordnik-get_user_word_of_the_day"><strong>get_user_word_of_the_day</strong></a>(self, *args, **kwargs)</dt><dd><tt>Returns&nbsp;the&nbsp;WordOfTheDay&nbsp;for&nbsp;a&nbsp;given&nbsp;user&nbsp;on&nbsp;a&nbsp;given&nbsp;date<br>
+/user.{format}/{username}/wordOfTheDay/{date}<br>
+&nbsp;<br>
+Path&nbsp;Parameters:<br>
+&nbsp;&nbsp;username<br>
+&nbsp;&nbsp;date<br>
+&nbsp;<br>
+Other&nbsp;Parameters:<br>
+&nbsp;&nbsp;includeAll</tt></dd></dl>
+
+<dl><dt><a name="Wordnik-get_user_word_of_the_day_list"><strong>get_user_word_of_the_day_list</strong></a>(self, *args, **kwargs)</dt><dd><tt>Returns&nbsp;a&nbsp;user's&nbsp;WordOfTheDayList<br>
+/user.{format}/{username}/wordOfTheDayList<br>
+&nbsp;<br>
+Path&nbsp;Parameters:<br>
+&nbsp;&nbsp;username<br>
+&nbsp;<br>
+Other&nbsp;Parameters:<br>
+&nbsp;&nbsp;includeAll</tt></dd></dl>
+
+<dl><dt><a name="Wordnik-get_word"><strong>get_word</strong></a>(self, *args, **kwargs)</dt><dd><tt>Given&nbsp;a&nbsp;word&nbsp;as&nbsp;a&nbsp;string,&nbsp;returns&nbsp;the&nbsp;WordObject&nbsp;that&nbsp;represents&nbsp;it<br>
+/word.{format}/{word}<br>
+&nbsp;<br>
+Path&nbsp;Parameters:<br>
+&nbsp;&nbsp;word<br>
+&nbsp;<br>
+Other&nbsp;Parameters:<br>
+&nbsp;&nbsp;useCanonical<br>
+&nbsp;&nbsp;includeSuggestions</tt></dd></dl>
+
+<dl><dt><a name="Wordnik-get_word_audio"><strong>get_word_audio</strong></a>(self, *args, **kwargs)</dt><dd><tt>Fetches&nbsp;audio&nbsp;metadata&nbsp;for&nbsp;a&nbsp;word.<br>
+/word.{format}/{word}/audio<br>
+&nbsp;<br>
+Path&nbsp;Parameters:<br>
+&nbsp;&nbsp;word<br>
+&nbsp;<br>
+Other&nbsp;Parameters:<br>
+&nbsp;&nbsp;useCanonical<br>
+&nbsp;&nbsp;limit</tt></dd></dl>
+
+<dl><dt><a name="Wordnik-get_word_definitions"><strong>get_word_definitions</strong></a>(self, *args, **kwargs)</dt><dd><tt>Return&nbsp;definitions&nbsp;for&nbsp;a&nbsp;word<br>
+/word.{format}/{word}/definitions<br>
+&nbsp;<br>
+Path&nbsp;Parameters:<br>
+&nbsp;&nbsp;word<br>
+&nbsp;<br>
+Other&nbsp;Parameters:<br>
+&nbsp;&nbsp;limit<br>
+&nbsp;&nbsp;partOfSpeech<br>
+&nbsp;&nbsp;includeRelated<br>
+&nbsp;&nbsp;sourceDictionaries<br>
+&nbsp;&nbsp;useCanonical<br>
+&nbsp;&nbsp;includeTags</tt></dd></dl>
+
+<dl><dt><a name="Wordnik-get_word_examples"><strong>get_word_examples</strong></a>(self, *args, **kwargs)</dt><dd><tt>Returns&nbsp;examples&nbsp;for&nbsp;a&nbsp;word<br>
+/word.{format}/{word}/examples<br>
+&nbsp;<br>
+Path&nbsp;Parameters:<br>
+&nbsp;&nbsp;word<br>
+&nbsp;<br>
+Other&nbsp;Parameters:<br>
+&nbsp;&nbsp;limit<br>
+&nbsp;&nbsp;includeDuplicates<br>
+&nbsp;&nbsp;contentProvider<br>
+&nbsp;&nbsp;useCanonical<br>
+&nbsp;&nbsp;skip</tt></dd></dl>
+
+<dl><dt><a name="Wordnik-get_word_frequency"><strong>get_word_frequency</strong></a>(self, *args, **kwargs)</dt><dd><tt>Returns&nbsp;word&nbsp;usage&nbsp;over&nbsp;time<br>
+/word.{format}/{word}/frequency<br>
+&nbsp;<br>
+Path&nbsp;Parameters:<br>
+&nbsp;&nbsp;word<br>
+&nbsp;<br>
+Other&nbsp;Parameters:<br>
+&nbsp;&nbsp;useCanonical<br>
+&nbsp;&nbsp;startYear<br>
+&nbsp;&nbsp;endYear</tt></dd></dl>
+
+<dl><dt><a name="Wordnik-get_word_hyphenation"><strong>get_word_hyphenation</strong></a>(self, *args, **kwargs)</dt><dd><tt>Returns&nbsp;syllable&nbsp;information&nbsp;for&nbsp;a&nbsp;word<br>
+/word.{format}/{word}/hyphenation<br>
+&nbsp;<br>
+Path&nbsp;Parameters:<br>
+&nbsp;&nbsp;word<br>
+&nbsp;<br>
+Other&nbsp;Parameters:<br>
+&nbsp;&nbsp;useCanonical<br>
+&nbsp;&nbsp;sourceDictionary<br>
+&nbsp;&nbsp;limit</tt></dd></dl>
+
+<dl><dt><a name="Wordnik-get_word_list"><strong>get_word_list</strong></a>(self, *args, **kwargs)</dt><dd><tt>Fetches&nbsp;a&nbsp;WordList&nbsp;by&nbsp;ID<br>
+/wordList.{format}/{wordListId}<br>
+&nbsp;<br>
+Path&nbsp;Parameters:<br>
+&nbsp;&nbsp;wordListId</tt></dd></dl>
+
+<dl><dt><a name="Wordnik-get_word_list_words"><strong>get_word_list_words</strong></a>(self, *args, **kwargs)</dt><dd><tt>Fetches&nbsp;words&nbsp;in&nbsp;a&nbsp;WordList<br>
+/wordList.{format}/{wordListId}/words<br>
+&nbsp;<br>
+Path&nbsp;Parameters:<br>
+&nbsp;&nbsp;wordListId<br>
+&nbsp;<br>
+Other&nbsp;Parameters:<br>
+&nbsp;&nbsp;sortBy<br>
+&nbsp;&nbsp;sortOrder<br>
+&nbsp;&nbsp;skip<br>
+&nbsp;&nbsp;limit</tt></dd></dl>
+
+<dl><dt><a name="Wordnik-get_word_lists"><strong>get_word_lists</strong></a>(self, *args, **kwargs)</dt><dd><tt>Returns&nbsp;information&nbsp;about&nbsp;API&nbsp;parameters<br>
+/wordLists</tt></dd></dl>
+
+<dl><dt><a name="Wordnik-get_word_phrases"><strong>get_word_phrases</strong></a>(self, *args, **kwargs)</dt><dd><tt>Fetches&nbsp;bi-gram&nbsp;phrases&nbsp;for&nbsp;a&nbsp;word<br>
+/word.{format}/{word}/phrases<br>
+&nbsp;<br>
+Path&nbsp;Parameters:<br>
+&nbsp;&nbsp;word<br>
+&nbsp;<br>
+Other&nbsp;Parameters:<br>
+&nbsp;&nbsp;limit<br>
+&nbsp;&nbsp;wlmi<br>
+&nbsp;&nbsp;useCanonical</tt></dd></dl>
+
+<dl><dt><a name="Wordnik-get_word_pronunciations"><strong>get_word_pronunciations</strong></a>(self, *args, **kwargs)</dt><dd><tt>Returns&nbsp;text&nbsp;pronunciations&nbsp;for&nbsp;a&nbsp;given&nbsp;word<br>
+/word.{format}/{word}/pronunciations<br>
+&nbsp;<br>
+Path&nbsp;Parameters:<br>
+&nbsp;&nbsp;word<br>
+&nbsp;<br>
+Other&nbsp;Parameters:<br>
+&nbsp;&nbsp;useCanonical<br>
+&nbsp;&nbsp;sourceDictionary<br>
+&nbsp;&nbsp;typeFormat<br>
+&nbsp;&nbsp;limit</tt></dd></dl>
+
+<dl><dt><a name="Wordnik-get_word_related"><strong>get_word_related</strong></a>(self, *args, **kwargs)</dt><dd><tt>Return&nbsp;related&nbsp;words&nbsp;(thesaurus&nbsp;data)&nbsp;for&nbsp;a&nbsp;word<br>
+/word.{format}/{word}/related<br>
+&nbsp;<br>
+Path&nbsp;Parameters:<br>
+&nbsp;&nbsp;word<br>
+&nbsp;<br>
+Other&nbsp;Parameters:<br>
+&nbsp;&nbsp;partOfSpeech<br>
+&nbsp;&nbsp;sourceDictionary<br>
+&nbsp;&nbsp;limit<br>
+&nbsp;&nbsp;useCanonical<br>
+&nbsp;&nbsp;type</tt></dd></dl>
+
+<dl><dt><a name="Wordnik-get_word_top_example"><strong>get_word_top_example</strong></a>(self, *args, **kwargs)</dt><dd><tt>Returns&nbsp;a&nbsp;top&nbsp;example&nbsp;for&nbsp;a&nbsp;word<br>
+/word.{format}/{word}/topExample<br>
+&nbsp;<br>
+Path&nbsp;Parameters:<br>
+&nbsp;&nbsp;word<br>
+&nbsp;<br>
+Other&nbsp;Parameters:<br>
+&nbsp;&nbsp;contentProvider<br>
+&nbsp;&nbsp;useCanonical</tt></dd></dl>
+
+<dl><dt><a name="Wordnik-get_word_word_forms"><strong>get_word_word_forms</strong></a>(self, *args, **kwargs)</dt><dd><tt>Returns&nbsp;other&nbsp;forms&nbsp;of&nbsp;a&nbsp;word<br>
+/word.{format}/{word}/wordForms<br>
+&nbsp;<br>
+Path&nbsp;Parameters:<br>
+&nbsp;&nbsp;word<br>
+&nbsp;<br>
+Other&nbsp;Parameters:<br>
+&nbsp;&nbsp;useCanonical</tt></dd></dl>
+
+<dl><dt><a name="Wordnik-get_words_random_word"><strong>get_words_random_word</strong></a>(self, *args, **kwargs)</dt><dd><tt>Returns&nbsp;a&nbsp;single&nbsp;random&nbsp;WordObject,&nbsp;in&nbsp;the&nbsp;format&nbsp;specified&nbsp;by&nbsp;the&nbsp;URL<br>
+/words.{format}/randomWord<br>
+&nbsp;<br>
+Other&nbsp;Parameters:<br>
+&nbsp;&nbsp;hasDictionaryDef<br>
+&nbsp;&nbsp;includePartOfSpeech<br>
+&nbsp;&nbsp;excludePartOfSpeech<br>
+&nbsp;&nbsp;minCorpusCount<br>
+&nbsp;&nbsp;maxCorpusCount<br>
+&nbsp;&nbsp;minDictionaryCount<br>
+&nbsp;&nbsp;maxDictionaryCount<br>
+&nbsp;&nbsp;minLength<br>
+&nbsp;&nbsp;maxLength</tt></dd></dl>
+
+<dl><dt><a name="Wordnik-get_words_random_words"><strong>get_words_random_words</strong></a>(self, *args, **kwargs)</dt><dd><tt>Returns&nbsp;an&nbsp;array&nbsp;of&nbsp;random&nbsp;WordObjects,&nbsp;in&nbsp;the&nbsp;format&nbsp;specified&nbsp;by&nbsp;the&nbsp;URL<br>
+/words.{format}/randomWords<br>
+&nbsp;<br>
+Other&nbsp;Parameters:<br>
+&nbsp;&nbsp;hasDictionaryDef<br>
+&nbsp;&nbsp;includePartOfSpeech<br>
+&nbsp;&nbsp;excludePartOfSpeech<br>
+&nbsp;&nbsp;minCorpusCount<br>
+&nbsp;&nbsp;maxCorpusCount<br>
+&nbsp;&nbsp;minDictionaryCount<br>
+&nbsp;&nbsp;maxDictionaryCount<br>
+&nbsp;&nbsp;minLength<br>
+&nbsp;&nbsp;maxLength<br>
+&nbsp;&nbsp;sortBy<br>
+&nbsp;&nbsp;sortOrder<br>
+&nbsp;&nbsp;skip<br>
+&nbsp;&nbsp;limit</tt></dd></dl>
+
+<dl><dt><a name="Wordnik-get_words_search"><strong>get_words_search</strong></a>(self, *args, **kwargs)</dt><dd><tt>Searches&nbsp;words.<br>
+/words.{format}/search<br>
+&nbsp;<br>
+Other&nbsp;Parameters:<br>
+&nbsp;&nbsp;query<br>
+&nbsp;&nbsp;caseSensitive<br>
+&nbsp;&nbsp;includePartOfSpeech<br>
+&nbsp;&nbsp;excludePartOfSpeech<br>
+&nbsp;&nbsp;minCorpusCount<br>
+&nbsp;&nbsp;maxCorpusCount<br>
+&nbsp;&nbsp;minDictionaryCount<br>
+&nbsp;&nbsp;maxDictionaryCount<br>
+&nbsp;&nbsp;minLength<br>
+&nbsp;&nbsp;maxLength<br>
+&nbsp;&nbsp;skip<br>
+&nbsp;&nbsp;limit</tt></dd></dl>
+
+<dl><dt><a name="Wordnik-get_words_word_of_the_day_lists"><strong>get_words_word_of_the_day_lists</strong></a>(self, *args, **kwargs)</dt><dd><tt>Fetches&nbsp;WordOfTheDay&nbsp;objects&nbsp;for&nbsp;a&nbsp;specific&nbsp;date<br>
+/words.{format}/wordOfTheDayLists/{date}<br>
+&nbsp;<br>
+Path&nbsp;Parameters:<br>
+&nbsp;&nbsp;date<br>
+&nbsp;<br>
+Other&nbsp;Parameters:<br>
+&nbsp;&nbsp;includeAll</tt></dd></dl>
+
+<dl><dt><a name="Wordnik-multi"><strong>multi</strong></a>(self, calls, **kwargs)</dt><dd><tt>Multiple&nbsp;calls,&nbsp;batched.&nbsp;This&nbsp;is&nbsp;a&nbsp;"special&nbsp;case"&nbsp;method<br>
+in&nbsp;that&nbsp;it's&nbsp;not&nbsp;automatically&nbsp;generated&nbsp;from&nbsp;the&nbsp;API&nbsp;documentation.<br>
+That's&nbsp;because,&nbsp;well,&nbsp;it's&nbsp;undocumented.&nbsp;Here's&nbsp;how&nbsp;you&nbsp;use&nbsp;it:<br>
+&nbsp;<br>
+Wordnik.<a href="#wordnik.Wordnik-multi">multi</a>(&nbsp;[call1,&nbsp;call2,&nbsp;call3&nbsp;],&nbsp;**kwargs)<br>
+&nbsp;<br>
+where&nbsp;each&nbsp;"call"&nbsp;is&nbsp;(word,&nbsp;resource,&nbsp;{param1:&nbsp;value1,&nbsp;...}&nbsp;)<br>
+So&nbsp;we&nbsp;could&nbsp;form&nbsp;a&nbsp;batch&nbsp;call&nbsp;like&nbsp;so:<br>
+&nbsp;<br>
+calls&nbsp;=&nbsp;[("dog","examples"),("cat","definitions",{"limit":500})]<br>
+&nbsp;<br>
+Wordnik.<a href="#wordnik.Wordnik-multi">multi</a>(calls,&nbsp;format="xml")</tt></dd></dl>
+
+<dl><dt><a name="Wordnik-post_account_authenticate"><strong>post_account_authenticate</strong></a>(self, *args, **kwargs)</dt><dd><tt>Authenticates&nbsp;a&nbsp;user<br>
+/account.{format}/authenticate/{username}<br>
+&nbsp;<br>
+Path&nbsp;Parameters:<br>
+&nbsp;&nbsp;username<br>
+&nbsp;<br>
+Other&nbsp;Parameters:<br>
+&nbsp;&nbsp;body</tt></dd></dl>
+
+<dl><dt><a name="Wordnik-post_user_word_of_the_day_list"><strong>post_user_word_of_the_day_list</strong></a>(self, *args, **kwargs)</dt><dd><tt>Creates&nbsp;a&nbsp;WordOfTheDayList<br>
+/user.{format}/{username}/wordOfTheDayList<br>
+&nbsp;<br>
+Path&nbsp;Parameters:<br>
+&nbsp;&nbsp;username<br>
+&nbsp;<br>
+Other&nbsp;Parameters:<br>
+&nbsp;&nbsp;body</tt></dd></dl>
+
+<dl><dt><a name="Wordnik-post_word_list_delete_words"><strong>post_word_list_delete_words</strong></a>(self, *args, **kwargs)</dt><dd><tt>Removes&nbsp;words&nbsp;from&nbsp;a&nbsp;WordList<br>
+/wordList.{format}/{wordListId}/deleteWords<br>
+&nbsp;<br>
+Path&nbsp;Parameters:<br>
+&nbsp;&nbsp;wordListId<br>
+&nbsp;<br>
+Other&nbsp;Parameters:<br>
+&nbsp;&nbsp;body</tt></dd></dl>
+
+<dl><dt><a name="Wordnik-post_word_list_words"><strong>post_word_list_words</strong></a>(self, *args, **kwargs)</dt><dd><tt>Adds&nbsp;words&nbsp;to&nbsp;a&nbsp;WordList<br>
+/wordList.{format}/{wordListId}/words<br>
+&nbsp;<br>
+Path&nbsp;Parameters:<br>
+&nbsp;&nbsp;wordListId<br>
+&nbsp;<br>
+Other&nbsp;Parameters:<br>
+&nbsp;&nbsp;body</tt></dd></dl>
+
+<dl><dt><a name="Wordnik-post_word_lists"><strong>post_word_lists</strong></a>(self, *args, **kwargs)</dt><dd><tt>Creates&nbsp;a&nbsp;WordList.<br>
+/wordLists<br>
+&nbsp;<br>
+Other&nbsp;Parameters:<br>
+&nbsp;&nbsp;body</tt></dd></dl>
+
+<dl><dt><a name="Wordnik-post_words_word_of_the_day_list_subscription"><strong>post_words_word_of_the_day_list_subscription</strong></a>(self, *args, **kwargs)</dt><dd><tt>Subscribes&nbsp;a&nbsp;user&nbsp;to&nbsp;a&nbsp;WordOfTheDayList<br>
+/words.{format}/wordOfTheDayList/{permalink}/subscription<br>
+&nbsp;<br>
+Path&nbsp;Parameters:<br>
+&nbsp;&nbsp;permalink<br>
+&nbsp;<br>
+Other&nbsp;Parameters:<br>
+&nbsp;&nbsp;auth_token<br>
+&nbsp;&nbsp;medium<br>
+&nbsp;&nbsp;body</tt></dd></dl>
+
+<dl><dt><a name="Wordnik-put_user_word_of_the_day_list"><strong>put_user_word_of_the_day_list</strong></a>(self, *args, **kwargs)</dt><dd><tt>Adds&nbsp;a&nbsp;WordOfTheDay&nbsp;to&nbsp;a&nbsp;user's&nbsp;WordOfTheDayList<br>
+/user.{format}/{username}/wordOfTheDayList/{permalink}<br>
+&nbsp;<br>
+Path&nbsp;Parameters:<br>
+&nbsp;&nbsp;username<br>
+&nbsp;&nbsp;permalink<br>
+&nbsp;<br>
+Other&nbsp;Parameters:<br>
+&nbsp;&nbsp;body</tt></dd></dl>
+
+<dl><dt><a name="Wordnik-put_user_word_of_the_day_list_add"><strong>put_user_word_of_the_day_list_add</strong></a>(self, *args, **kwargs)</dt><dd><tt>Adds&nbsp;an&nbsp;item&nbsp;to&nbsp;a&nbsp;user's&nbsp;WordOfTheDayList<br>
+/user.{format}/{username}/wordOfTheDayList/{permalink}/add<br>
+&nbsp;<br>
+Path&nbsp;Parameters:<br>
+&nbsp;&nbsp;username<br>
+&nbsp;&nbsp;permalink<br>
+&nbsp;<br>
+Other&nbsp;Parameters:<br>
+&nbsp;&nbsp;body</tt></dd></dl>
+
+<dl><dt><a name="Wordnik-put_word_list"><strong>put_word_list</strong></a>(self, *args, **kwargs)</dt><dd><tt>Updates&nbsp;an&nbsp;existing&nbsp;WordList<br>
+/wordList.{format}/{wordListId}<br>
+&nbsp;<br>
+Path&nbsp;Parameters:<br>
+&nbsp;&nbsp;wordListId<br>
+&nbsp;<br>
+Other&nbsp;Parameters:<br>
+&nbsp;&nbsp;body</tt></dd></dl>
+
+<hr>
+Data descriptors defined here:<br>
+<dl><dt><strong>__dict__</strong></dt>
+<dd><tt>dictionary&nbsp;for&nbsp;instance&nbsp;variables&nbsp;(if&nbsp;defined)</tt></dd>
+</dl>
+<dl><dt><strong>__weakref__</strong></dt>
+<dd><tt>list&nbsp;of&nbsp;weak&nbsp;references&nbsp;to&nbsp;the&nbsp;object&nbsp;(if&nbsp;defined)</tt></dd>
+</dl>
+</td></tr></table>
+</body></html>
