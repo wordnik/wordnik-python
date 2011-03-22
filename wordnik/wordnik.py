@@ -65,7 +65,12 @@ class Wordnik(object):
         Initialize a Wordnik object. You must pass in an API key when
         you make a new Wordnik. We don't validate the API key until the
         first call against the API is made, at which point you'll find
-        out if it's good."""
+        out if it's good.
+        
+        If you also pass in a username and password, we will try to get an
+        auth token so you can use the Wordnik authenticated methods.
+        Alternatively, you can call Wordnik.authenticate(user, pass)
+        """
         
         if api_key is None:
             raise NoAPIKey("No API key passed to our constructor")
