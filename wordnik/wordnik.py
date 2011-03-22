@@ -60,7 +60,7 @@ class Wordnik(object):
     """
     
     
-    def __init__(self, api_key=None):
+    def __init__(self, api_key=None, username=None, password=None):
         """
         Initialize a Wordnik object. You must pass in an API key when
         you make a new Wordnik. We don't validate the API key until the
@@ -71,6 +71,16 @@ class Wordnik(object):
             raise NoAPIKey("No API key passed to our constructor")
         
         self._api_key = api_key
+        self.username = username
+        self.password = password
+        self.token    = None
+        
+        if username and password:
+            try:
+                j = json.loads(self.account_get_authenticate(username, password=password))
+                self.token = j['token']
+            except:
+                raise RestfulError("Could not authenticate with the given username and password")
         
         
     @classmethod
@@ -102,19 +112,21 @@ class Wordnik(object):
                 ## will get translated into method: user_get_word_of_the_day_list
                 methodName  = helpers.normalize(path, httpmethod)
                 docs        = helpers.generate_docs(params, response, summary, path)
-                method      = helpers.create_method(methodName, docs, helpers.dictify(params), path)
+                method      = helpers.create_method(methodName, docs, params, path)
                 
                 setattr( Wordnik, methodName, method )
     
     def _run_command(self, command_name, *args, **kwargs):
         if 'api_key' not in kwargs:
             kwargs.update( {"api_key": self._api_key} )
+        if self.token:
+            kwargs.update( {"auth_token": self.token} )
         
         command                 = getattr(self, command_name)
         (path, headers, body)   = helpers.process_args(command._path, command._params, args, kwargs)
         
         return self._do_http(path, headers, body)
-    
+        
     def multi(self, calls, **kwargs):
         """Multiple calls, batched. This is a "special case" method
         in that it's not automatically generated from the API documentation.
@@ -153,6 +165,18 @@ class Wordnik(object):
         
         return self._do_http(path, headers)
     
+    def authenticate(self, username, password):
+        """A convenience method to get an auth token in case the object was 
+        not instantiated with a username and a password.
+        """
+
+        try:
+            j = json.loads(self.account_get_authenticate(username, password=password))
+            self.token = j['token']
+            return True
+        except:
+            raise RestfulError("Could not authenticate with the given username and password")
+    
     @staticmethod
     def _do_http(uri, headers, body=None):
         """This wraps the HTTP call. This may get factored out in the future."""
@@ -163,6 +187,6 @@ class Wordnik(object):
         except urllib2.HTTPError as e:
             code, msg = e.code, e.msg
             print "{0}: {1}".format(code, msg)
-            return None
+            return e
                 
                 

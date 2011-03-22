@@ -4,10 +4,11 @@
 import unittest
 import wordnik
 import urllib2
-from wordnik import Wordnik
 
 ## please just trust me... D:
-params = {u'includeSuggestions': {u'paramType': u'query', u'required': False, u'description': u'Return suggestions (for correct spelling, case variants, etc.)', u'name': u'includeSuggestions'}, u'word': {u'paramType': u'path', u'required': True, u'description': u'String value of WordObject to return', u'name': u'word'}, u'useCanonical': {u'paramType': u'query', u'required': False, u'description': u"If true will try to return the correct word root ('cats' -> 'cat'). If false returns exactly what was requested.", u'name': u'useCanonical'}, u'format': {u'name': u'format', u'paramType': u'path', u'required': True, u'allowableValues': u'json,xml', u'defaultValue': u'json', u'description': u'API response format'}}
+params = [{u'paramType': u'path', u'required': False, u'description': u'ID of WordOfTheDayList', u'name': u'date'}, {u'paramType': u'query', u'required': False, u'description': u'Returns future WordOfTheDay items', u'name': u'includeAll'}, {u'name': u'format', u'paramType': u'path', u'required': True, u'allowableValues': u'json,xml', u'defaultValue': u'json', u'description': u'API response format'}]
+
+alt_params = [{u'paramType': u'path', u'required': False, u'description': u'ID of WordOfTheDayList', u'name': u'date'}, {u'paramType': u'query', u'required': True, u'description': u'Returns future WordOfTheDay items', u'name': u'includeAll'} ]
 
 response = [] ## not currently used, so not tested
 summary = "Generic function summary"
@@ -28,10 +29,11 @@ class TestHelperFunctions(unittest.TestCase):
 /fake.{format}/{parameter}/path
 
 Path Parameters:
-  word
+  date
+  format
 
 Other Parameters:
-  useCanonical
+  includeAll
 """
         self.assertRaises(TypeError, self.h.generate_docs)
         self.assertRaises(TypeError, self.h.generate_docs, params)
@@ -63,8 +65,32 @@ Other Parameters:
 
         self.assertEqual(self.h.process_args(path, params, [], { "parameter": "fakeParam"} ),
                          (expectedPath, expectedHeaders, expectedBody) )
+        
+        expectedBody = "key=value"
+        
+        self.assertEqual(self.h.process_args(path, params, [], { "parameter": "fakeParam", "body": {"key": "value"}} ),
+                         (expectedPath, expectedHeaders, expectedBody) )
+        expectedBody = None
+        expectedPath = "/fake.json/fakeParam/path?includeAll=True&"
+        
+        self.assertRaises(wordnik.MissingParameters, self.h.process_args,path,alt_params,[],{ "parameter": "fakeParam"})
+        self.assertEqual(self.h.process_args(path, alt_params, [], { "parameter": "fakeParam", "includeAll": True }  ),
+                         (expectedPath, expectedHeaders, expectedBody) )
 
-
+    def test_uncamel(self):
+        self.assertEqual(self.h.uncamel("camelString"), "camel_string")
+    
+    def test_remove_params(self):
+        self.assertEqual(self.h.remove_params("/test/{path}/with/{params}"), "/test//with/")
+    
+    def test_componentize(self):
+        self.assertEqual(self.h.componentize("one_two_three"), ["one", "two", "three"])
+        
+    def test_normalize(self):
+        self.assertRaises(TypeError, self.h.normalize)
+        self.assertEqual(self.h.normalize(path, "get"), "fake_get_path")
+    
+    
 
 if __name__ == "__main__":
     unittest.main()

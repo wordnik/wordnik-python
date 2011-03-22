@@ -7,25 +7,67 @@ def generate_docs(params, response, summary, path):
     docstring   = "{0}\n".format(summary)
     docstring  += "{0}\n".format(path)
     
-    pathParams  = [ p for p in params if p['paramType'] == "path" and p.get('name') != "format" ]
-    if pathParams:
+    path_params  = get_path_params(params)
+    other_params = get_other_params(params)
+   
+    if path_params:
         docstring += "\nPath Parameters:\n"
-    for param in pathParams:
-        name      = param.get('name') or 'body'
-        paramDoc  = "  {0}\n".format(name)
-        docstring += paramDoc
+        for param in path_params:
+            param_doc  = "  {0}\n".format(param.get('name'))
+            docstring += param_doc
  
-    
-    otherParams = [ p for p in params if p['paramType'] != "path" ]
-    if otherParams:
+    if other_params:
         docstring += "\nOther Parameters:\n"
-    for param in otherParams:
-        name      = param.get('name') or 'body'
-        paramDoc  = "  {0}\n".format(name)
-        docstring += paramDoc
+        for param in other_params:
+            param_doc  = "  {0}\n".format(param.get('name'))
+            docstring += param_doc
 
     return docstring
 
+def get_path_params(params):
+    path_params = []
+    for param in [ p for p in params if p['paramType'] == 'path' ]:
+        p = {}
+        p['name']        = param.get('name') or 'body'
+        p['description'] = param.get('description')
+        p['paramType']   = param.get('paramType')
+        p['required']    = param.get('required')
+        path_params.append(p)
+    return path_params
+
+def get_query_params(params):
+    query_params = []
+    for param in [ p for p in params if p['paramType'] == 'query' ]:
+        p = {}
+        p['name']        = param.get('name') or 'body'
+        p['description'] = param.get('description')
+        p['paramType']   = param.get('paramType')
+        p['required']    = param.get('required')
+        query_params.append(p)
+    return query_params
+
+def get_other_params(params):
+    other_params = []
+    for param in [ p for p in params if p['paramType'] != 'path' ]:
+        p = {}
+        p['name']        = param.get('name') or 'body'
+        p['description'] = param.get('description')
+        p['paramType']   = param.get('paramType')
+        p['required']    = param.get('required')
+        other_params.append(p)
+    return other_params
+
+def get_required_params(params):
+    required_params = []
+    for param in [ p for p in params if p['paramType'] != 'path' and p['required'] == True ]:
+        p = {}
+        p['name']        = param.get('name') or 'body'
+        p['description'] = param.get('description')
+        p['paramType']   = param.get('paramType')
+        p['required']    = param.get('required')
+        required_params.append(p['name'])
+    return required_params
+      
 def create_method(name, doc, params, path):
     """The magic behind the dynamically generated methods in the Wordnik object"""
     def _method(self, *args, **kwargs):
@@ -43,23 +85,22 @@ def process_args(path, params, args, kwargs):
     headers and/or body, based on positional and keyword arguments.
     """
 
-    required_params = [ p for p in params if params[p]['required'] and p != 'format' and  params[p]['paramType'] != 'path' ]
-    given_params = kwargs.keys()
+    required_params = get_required_params(params)
+    given_params    = kwargs.keys()
+    query_params    = get_query_params(params)
     
     if not set(given_params).issuperset(set(required_params)):
         notsupplied = set(given_params).symmetric_difference(set(required_params)).intersection(set(required_params))
         raise wordnik.MissingParameters("Some required parameters are missing: {0}".format(notsupplied))
-        
     
+    ## get "{format} of of the way first"
+    format = kwargs.get('format') or wordnik.DEFAULT_FORMAT
+    path   = path.replace('{format}', format) + "?"    
     
     positional_args_re  = re.compile('{([\w]+)}')
     headers             = {}
     body                = None
     
-    ## get "{format} of of the way first"
-    format = kwargs.get('format') or wordnik.DEFAULT_FORMAT
-    path = path.replace('{format}', format) + "?"
-
     ## substiture the positional arguments, left-to-right
     for arg in args:
         path = positional_args_re.sub(arg, path, count=1)
@@ -78,12 +119,16 @@ def process_args(path, params, args, kwargs):
     if 'body' in kwargs:
         body = urllib.urlencode(kwargs.pop('body'))
     
-    ## handle additional query and header args
-    for arg in kwargs:
-        if arg in params and params[arg]['paramType'] == 'query':
-            path += "{0}={1}&".format(arg, kwargs[arg])
-        else:
-            headers[arg] = kwargs[arg]
+    ## handle additional query args
+    for param in query_params:
+        name = param.get('name')
+        if name in kwargs:
+            path += "{0}={1}&".format(name, kwargs.pop(name))
+
+    
+    ## put all remaining kwargs in the headers
+    for arg in kwargs:    
+        headers[arg] = kwargs[arg]
 
     ## If we still have any unsubstituted params in the path, we need to 
     ## raise an exception.
@@ -92,8 +137,8 @@ def process_args(path, params, args, kwargs):
         raise wordnik.MissingParameters("Some required parameters are missing: {0}".format(path))
     
     ## similarly, raise and exception if we're missing a keyword arg.
-    for param in params.keys():
-        if params[param]['paramType'] == 'body' and body == None:
+    for param in params:
+        if param['paramType'] == 'body' and body == None:
             raise wordnik.MissingParameters("Some required parameters are missing: {0}".format(param))
     
     ## return a 3-tuple of (<URI path>, <headers>, <body>)
@@ -125,24 +170,3 @@ def normalize(path, method):
     m = [ components[0], method ]
     m.extend(components[1:])
     return uncamel("_".join(m))
-
-def dictify(params):
-    p = {}
-    for param in params:
-        if 'name' in param:
-            p[param['name']] = param
-        else:
-            p['body'] = param
-
-    return p
-
-def find_missing_path_params(self, path):
-    """This will check to make sure there are no un-substituted params
-    e.g. /word.json/{word}
-    """
-    if self.positional_args_re.search(path):
-        matches = self.positional_args_re.findall(path)
-        missingParams = ", ".join(matches)
-        raise MissingParameters("Could not substitute some parameters: {0}".format(missingParams))
-
-

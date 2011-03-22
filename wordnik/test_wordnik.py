@@ -5,7 +5,7 @@ import wordnik
 import urllib2
 
 def fake_do_http(uri, headers, body=None):
-    return """{ "fakeKey": "fakeValue" }"""
+    return """{ "fakeKey": "fakeValue", "token": "deadbeef" }"""
 
 def fake_fail_http(uri, headers, body=None):
     return None
@@ -54,6 +54,10 @@ class TestWordnikAPIMethods(unittest.TestCase):
         self.assertRaises(wordnik.MissingParameters,self.w.account_post_authenticate, "testuser")
         self.assertEqual(self.w.account_post_authenticate("testuser", body={}),self.response)
 
+    def test_authenticate(self):
+        self.assertRaises(TypeError, self.w.authenticate)
+        self.assertEqual(self.w.authenticate("user", "pass"), True)
+        
     def test_multi(self):
         ## XXX This needs to be done; multi() might need to get rewritten
         pass
