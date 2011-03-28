@@ -10,7 +10,7 @@ This API implements all the methods described at http://developer.wordnik.com/do
 maintainer: Robin Walsh (robin@wordnik.com)
 """
 
-import json, urllib, urllib2
+import httplib, json, urllib, urllib2
 from optparse import OptionParser
 from xml.etree import ElementTree
 from pprint import pprint
@@ -60,7 +60,7 @@ class Wordnik(object):
     """
     
     
-    def __init__(self, api_key=None, username=None, password=None):
+    def __init__(self, api_key=None, username=None, password=None, beta=False):
         """
         Initialize a Wordnik object. You must pass in an API key when
         you make a new Wordnik. We don't validate the API key until the
@@ -79,6 +79,7 @@ class Wordnik(object):
         self.username = username
         self.password = password
         self.token    = None
+        self.beta     = beta
         
         if username and password:
             try:
@@ -109,15 +110,15 @@ class Wordnik(object):
             path = method['path']
             for op in method['operations']:
                 summary = op['summary']
-                httpmethod = op['httpMethod'].lower()
+                httpmethod = op['httpMethod']
                 params = op['parameters']
                 response = op['response']
     
                 ## a path like: /user.{format}/{username}/wordOfTheDayList/{permalink} (GET)
                 ## will get translated into method: user_get_word_of_the_day_list
-                methodName  = helpers.normalize(path, httpmethod)
+                methodName  = helpers.normalize(path, httpmethod.lower())
                 docs        = helpers.generate_docs(params, response, summary, path)
-                method      = helpers.create_method(methodName, docs, params, path)
+                method      = helpers.create_method(methodName, docs, params, path, httpmethod.upper())
                 
                 setattr( Wordnik, methodName, method )
     
@@ -129,8 +130,9 @@ class Wordnik(object):
         
         command                 = getattr(self, command_name)
         (path, headers, body)   = helpers.process_args(command._path, command._params, args, kwargs)
+        httpmethod              = command._http
         
-        return self._do_http(path, headers, body)
+        return self._do_http(path, headers, body, httpmethod, beta=self.beta)
         
     def multi(self, calls, **kwargs):
         """Multiple calls, batched. This is a "special case" method
@@ -167,8 +169,10 @@ class Wordnik(object):
             callsMade += 1
         
         headers = { "api_key": self._api_key }
+        if self.token:
+            headers.update( {"auth_token": self.token} )
         
-        return self._do_http(path, headers)
+        return self._do_http(path, headers, beta=self.beta)
     
     def authenticate(self, username, password):
         """A convenience method to get an auth token in case the object was 
@@ -183,10 +187,25 @@ class Wordnik(object):
             raise RestfulError("Could not authenticate with the given username and password")
     
     @staticmethod
-    def _do_http(uri, headers, body=None):
+    def _do_http(uri, headers, body=None, method="GET", beta=False):
         """This wraps the HTTP call. This may get factored out in the future."""
-        url = DEFAULT_URL + uri
-        request = urllib2.Request(url, body, headers)
+        if body:
+            headers.update( {"Content-Type": "application/json"})
+        full_uri = DEFAULT_URI + uri
+        conn = httplib.HTTPConnection(DEFAULT_HOST)
+        if beta:
+            conn = httplib.HTTPConnection("beta.wordnik.com")
+        conn.set_debuglevel(5)
+        conn.request(method, full_uri, body, headers)
+        response = conn.getresponse()
+        if response.status == httplib.OK:
+            return response.read()
+        else:
+            print "{0}: {1}".format(response.status, response.reason)
+            return None
+        
+        
+        #request = urllib2.Request(url, body, headers)
         try:
             return urllib2.urlopen(request).read()
         except urllib2.HTTPError as e:
