@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 
-from setuptools import setup, find_packages
+from setuptools import setup, Extension
 
 setup(
     name='wordnik',
@@ -10,6 +10,7 @@ setup(
     author_email='robin@wordnik.com',
     test_suite = "nose.collector",
     url='http://developer.wordnik.com',
-    packages = ['wordnik'],
+    packages = ['wordnik' ],
+    package_data={'wordnik': ['endpoints/*.json']},
     setup_requires=['nose>=0.11']
 )
