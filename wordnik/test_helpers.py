@@ -14,10 +14,10 @@ response = [] ## not currently used, so not tested
 summary = "Generic function summary"
 path = "/fake.{format}/{parameter}/path"
 
-def fake_do_http(uri, headers, body=None):
+def fake_do_http(uri, headers, body=None, method="GET", beta=False):
     return """{ "fakeKey": "fakeValue" }"""
 
-def fake_fail_http(uri, headers, body=None):
+def fake_fail_http(uri, headers, body=None, method="GET", beta=False):
     return None
 
 class TestHelperFunctions(unittest.TestCase):
@@ -51,7 +51,7 @@ Other Parameters:
         self.assertRaises(TypeError, self.h.create_method, "name", doc)
         self.assertRaises(TypeError, self.h.create_method, "name", doc, params)
 
-        self.assertEqual(type(fake_do_http), type(self.h.create_method("name", doc, params, path)))
+        self.assertEqual(type(fake_do_http), type(self.h.create_method("name", doc, params, path, "GET")))
         
     def test_process_args(self):
 
@@ -66,8 +66,7 @@ Other Parameters:
         self.assertEqual(self.h.process_args(path, params, [], { "parameter": "fake Param"} ),
                          (expectedPath, expectedHeaders, expectedBody) )
         
-        expectedBody = "key=value"
-        
+        expectedBody = '{"key": "value"}'        
         self.assertEqual(self.h.process_args(path, params, [], { "parameter": "fake Param", "body": {"key": "value"}} ),
                          (expectedPath, expectedHeaders, expectedBody) )
         expectedBody = None

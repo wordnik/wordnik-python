@@ -1,4 +1,4 @@
-import re, urllib, urllib2, wordnik
+import json, re, urllib, urllib2, wordnik
 import wordnik
 
 def generate_docs(params, response, summary, path):
@@ -68,7 +68,7 @@ def get_required_params(params):
         required_params.append(p['name'])
     return required_params
       
-def create_method(name, doc, params, path):
+def create_method(name, doc, params, path, httpmethod):
     """The magic behind the dynamically generated methods in the Wordnik object"""
     def _method(self, *args, **kwargs):
         return self._run_command(name, *args, **kwargs)
@@ -77,6 +77,7 @@ def create_method(name, doc, params, path):
     _method.__name__ = str(name)
     _method._path    = path
     _method._params  = params
+    _method._http    = httpmethod
     
     return _method
 
@@ -84,7 +85,6 @@ def process_args(path, params, args, kwargs):
     """This does all the path substitution and the population of the
     headers and/or body, based on positional and keyword arguments.
     """
-
     required_params = get_required_params(params)
     given_params    = kwargs.keys()
     query_params    = get_query_params(params)
@@ -117,7 +117,7 @@ def process_args(path, params, args, kwargs):
 
     ## if we need to set the HTTP body, we do it in kwargs
     if 'body' in kwargs:
-        body = urllib.urlencode(kwargs.pop('body').__str__())
+        body = json.dumps(kwargs.pop('body'))
     
     ## handle additional query args
     for param in query_params:
