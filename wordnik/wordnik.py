@@ -1,8 +1,3 @@
-#!/usr/bin/env python
-# -*- coding: utf-8 -*-
-
-import helpers
-
 """Python wrapper for the Wordnik API. 
 
 This API implements all the methods described at http://developer.wordnik.com/docs
@@ -10,7 +5,8 @@ This API implements all the methods described at http://developer.wordnik.com/do
 maintainer: Robin Walsh (robin@wordnik.com)
 """
 
-import httplib, json, urllib, urllib2
+import helpers
+import httplib, json, os, urllib, urllib2
 from optparse import OptionParser
 from xml.etree import ElementTree
 from pprint import pprint
@@ -94,11 +90,12 @@ class Wordnik(object):
         """This will create all the methods we need to interact with
         the Wordnik API"""
         
-        import _methods
-        resources = _methods.api_methods.keys()
-        for resource in resources:
-            Wordnik._create_methods(_methods.api_methods[resource])
-    
+        ## there is a directory called "endpoints"
+        basedir = os.path.dirname(__file__)
+        for filename in os.listdir('{0}/endpoints'.format(basedir)):
+            j = json.load(open('{0}/endpoints/{1}'.format(basedir, filename)))
+            Wordnik._create_methods(j)
+            
     @classmethod
     def _create_methods(klass, jsn):
         """A helper method that will populate this module's namespace
@@ -195,7 +192,6 @@ class Wordnik(object):
         conn = httplib.HTTPConnection(DEFAULT_HOST)
         if beta:
             conn = httplib.HTTPConnection("beta.wordnik.com")
-        conn.set_debuglevel(5)
         conn.request(method, full_uri, body, headers)
         response = conn.getresponse()
         if response.status == httplib.OK:
@@ -203,14 +199,3 @@ class Wordnik(object):
         else:
             print "{0}: {1}".format(response.status, response.reason)
             return None
-        
-        
-        #request = urllib2.Request(url, body, headers)
-        try:
-            return urllib2.urlopen(request).read()
-        except urllib2.HTTPError as e:
-            code, msg = e.code, e.msg
-            print "{0}: {1}".format(code, msg)
-            return e
-                
-                

@@ -85,7 +85,6 @@ def process_args(path, params, args, kwargs):
     """This does all the path substitution and the population of the
     headers and/or body, based on positional and keyword arguments.
     """
-    print path
     required_params = get_required_params(params)
     given_params    = kwargs.keys()
     query_params    = get_query_params(params)
