@@ -6,15 +6,25 @@ maintainer: Robin Walsh (robin@wordnik.com)
 """
 
 import helpers
-import httplib, json, os, urllib, urllib2
+import httplib
+try:
+    import simplejson as json
+except ImportError:
+    import json
+import os
+import urllib
+import urllib2
 from optparse import OptionParser
 from xml.etree import ElementTree
 from pprint import pprint
+from sys import stdout, stderr
 
 DEFAULT_HOST   = "api.wordnik.com"
 DEFAULT_URI    = "/v4"
 DEFAULT_URL    = "http://" + DEFAULT_HOST + DEFAULT_URI
-DEFAULT_FORMAT = "json"
+FORMAT_JSON = "json"
+FORMAT_XML = "xml" 
+DEFAULT_FORMAT = FORMAT_JSON
 
 class RestfulError(Exception):
     """Raised when response from REST API indicates an error has occurred."""
@@ -187,6 +197,7 @@ class Wordnik(object):
     def _do_http(uri, headers, body=None, method="GET", beta=False):
         """This wraps the HTTP call. This may get factored out in the future."""
         if body:
+            #TODO: What's this mean? Should content ytpe always be json?
             headers.update( {"Content-Type": "application/json"})
         full_uri = DEFAULT_URI + uri
         conn = httplib.HTTPConnection(DEFAULT_HOST)
@@ -195,7 +206,10 @@ class Wordnik(object):
         conn.request(method, full_uri, body, headers)
         response = conn.getresponse()
         if response.status == httplib.OK:
-            return response.read()
+            text = response.read()
+            #TODO: use ElementTree.XML() instead of json.loads() if format is
+            #      XML. But where is that passed in? I can't get to the
+            return json.loads(text)
         else:
-            print "{0}: {1}".format(response.status, response.reason)
+            print >> stderr, "{0}: {1}".format(response.status, response.reason)
             return None
