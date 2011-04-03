@@ -6,5 +6,5 @@ from wordnik import RestfulError, InvalidRelationType, NoAPIKey, MissingParamete
 from wordnik import DEFAULT_URL, DEFAULT_FORMAT
 
 from wordnik import Wordnik
-Wordnk._populate_methods()
+Wordnik._populate_methods()
 
