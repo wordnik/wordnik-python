@@ -5,7 +5,8 @@ import wordnik
 import urllib2
 
 def fake_do_http(uri, headers, body=None, method="GET", beta=False):
-    return """{ "fakeKey": "fakeValue", "token": "deadbeef" }"""
+    # The real _do_http returns a string run through json.loads or ElementTree.XML.
+    return {"fakeKey": "fakeValue", "token": "deadbeef"}
 
 def fake_fail_http(uri, headers, body=None, method="GET", beta=False):
     return None
