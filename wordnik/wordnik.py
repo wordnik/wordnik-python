@@ -185,12 +185,12 @@ class Wordnik(object):
         """
 
         try:
-            resp = self.account_get_authenticate(username, password=password)
+            resp = self.account_get_authenticate(username, password=password, 
+                                                 format='json')
         except:
             raise RestfulError("Could not authenticate with the given username and password")
         else:
-            info = json.loads(resp)
-            self.token = info['token']
+            self.token = resp['token']
             return True
     
     @staticmethod
@@ -211,9 +211,6 @@ class Wordnik(object):
                 return json.loads(text)
             elif format_ == FORMAT_XML:
                 return ElementTree.XML(text)
-            else:
-                #TODO: Do we need anything here? The call itself will already fail.
-                pass
         else:
             print >> stderr, "{0}: {1}".format(response.status, response.reason)
             return None
