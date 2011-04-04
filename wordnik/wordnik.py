@@ -160,8 +160,7 @@ class Wordnik(object):
         path = "/word.%s?multi=true" % (kwargs.get('format') or DEFAULT_FORMAT)
         
         
-        callsMade = 0
-        for call in calls:
+        for calls_made, call in enumerate(calls):
             word = call[0]
             resource = call[1]
             if len(call) >= 3:
@@ -169,11 +168,10 @@ class Wordnik(object):
             else:
                 otherParams = {}
             ## Add the first resource to the URL
-            path += "&resource.{0}={1}/{2}".format(callsMade,word,resource)
+            path += "&resource.{0}={1}/{2}".format(calls_made,word,resource)
             for key,val in otherParams.items():
                 ## Add potential extra params to the URL
-                path += "&{0}.{1}={2}".format(key, callsMade, val)
-            callsMade += 1
+                path += "&{0}.{1}={2}".format(key, calls_made, val)
         
         headers = { "api_key": self._api_key }
         if self.token:
@@ -187,17 +185,18 @@ class Wordnik(object):
         """
 
         try:
-            j = json.loads(self.account_get_authenticate(username, password=password))
-            self.token = j['token']
-            return True
+            resp = self.account_get_authenticate(username, password=password)
         except:
             raise RestfulError("Could not authenticate with the given username and password")
+        else:
+            info = json.loads(resp)
+            self.token = info['token']
+            return True
     
     @staticmethod
     def _do_http(uri, headers, body=None, method="GET", beta=False):
         """This wraps the HTTP call. This may get factored out in the future."""
         if body:
-            #TODO: What's this mean? Should content ytpe always be json?
             headers.update( {"Content-Type": "application/json"})
         full_uri = DEFAULT_URI + uri
         conn = httplib.HTTPConnection(DEFAULT_HOST)
@@ -207,9 +206,14 @@ class Wordnik(object):
         response = conn.getresponse()
         if response.status == httplib.OK:
             text = response.read()
-            #TODO: use ElementTree.XML() instead of json.loads() if format is
-            #      XML. But where is that passed in? I can't get to the
-            return json.loads(text)
+            format_ = headers.get('format', DEFAULT_FORMAT)
+            if format_ == FORMAT_JSON:
+                return json.loads(text)
+            elif format_ == FORMAT_XML:
+                return ElementTree.XML(text)
+            else:
+                #TODO: Do we need anything here? The call itself will already fail.
+                pass
         else:
             print >> stderr, "{0}: {1}".format(response.status, response.reason)
             return None
