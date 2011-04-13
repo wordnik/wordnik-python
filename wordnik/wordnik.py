@@ -103,8 +103,10 @@ class Wordnik(object):
         ## there is a directory called "endpoints"
         basedir = os.path.dirname(__file__)
         for filename in os.listdir('{0}/endpoints'.format(basedir)):
-            j = json.load(open('{0}/endpoints/{1}'.format(basedir, filename)))
-            Wordnik._create_methods(j)
+            full_path = os.path.join(basedir, 'endpoints', filename)
+            if os.path.isfile(full_path):
+                j = json.load(open(full_path))
+                Wordnik._create_methods(j)
             
     @classmethod
     def _create_methods(klass, jsn):
