@@ -14,3 +14,5 @@ setup(
     package_data={'wordnik': ['endpoints/*.json']},
     setup_requires=['nose>=0.11']
 )
+
+""" Adding a bunch of stuff at the end to test github """
