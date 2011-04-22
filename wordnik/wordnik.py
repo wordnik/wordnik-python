@@ -179,6 +179,25 @@ class Wordnik(object):
         
         return self._do_http(path, headers, beta=self.beta)
     
+    ## Some convenience methods to help with api keys and tokens
+    def get_key(self):
+        """Returns the API key we're currently using"""
+        return self._api_key
+
+    def set_key(self, api_key):
+        """Set the API key we use to make calls to the API"""
+        self._api_key = api_key
+
+    def get_auth_token(self):
+        """Returns the auth token we've recieved from the API (or None)"""
+        return self.token
+
+    def set_auth_token(self, token):
+        """Sets the auth token we use to make authenticated calls"""
+        self.token = token
+
+    ## A convenience method to wrap the retrieval and storage of an auth
+    ## token in case we don't initialize with a username and password.
     def authenticate(self, username, password):
         """A convenience method to get an auth token in case the object was 
         not instantiated with a username and a password.
