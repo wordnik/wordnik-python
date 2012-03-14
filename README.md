@@ -23,6 +23,7 @@ my_client = APIClient(api_key, 'http://api.wordnik.com/v4')
 You'll want to edit those lines to reflect the full path to the `wordnik/api` folder you downloaded, and to use your own personal API key.
 
 Calling a Method
+-----
 
 Once you have a client set up, you need to instantiate an API object for whichever category or categories of items you are interested in working with. For example, to work with the `word` API and apply the method `getTopExample` method, you can do the following:
 
