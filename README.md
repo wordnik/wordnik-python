@@ -1,145 +1,62 @@
-Wordnik Python Driver
----------------------------------
+Wordnik Python Client
+==========
+This client has been generated using the Swagger code generator, which builds robust API clients and beautiful API documentation automatically. If you'd like to learn more about Swagger, visit http://swagger.wordnik.com/ (but you don't need to know anything about Swagger to simply use this API client for Wordnik, this page will tell get you up to speed on that account).
 
-### Synopsis ###
+Basic Setup
+-----
 
-This is the Python driver for the Wordnik API. All the documentation and method names are taken straight from the api's endpoint descriptions (e.g. http://api.wordnik.com/v4/word.json ). The module uses introspection to build methods at runtime, so the source code does not provide help on individual methods. To get help on the methods themselves, please use ```help(Wordnik) ``` from inside the Python REPL.
-
-Below you'll find some simple usage examples and basic API documentation.
-
-Thanks,
-The Wordnik Pythonistas
-
-### Usage ###
-
-``` python
-
-#!/usr/bin/env python
-
-from wordnik import Wordnik
-from pprint import pprint
-
-w = Wordnik(api_key="deadb33f")
-output = w.word_get_definitions("beef")
-pprint(output)
-"""and then we get..."""
-[{u'partOfSpeech': u'noun',
-  u'score': 0.0,
-  u'sequence': u'0',
-  u'sourceDictionary': u'ahd-legacy',
-  u'text': u'A full-grown steer, bull, ox, or cow, especially one intended for use as meat.',
-  u'word': u'beef'},
- {u'partOfSpeech': u'noun',
-  u'score': 0.0,
-  u'sequence': u'1',
-  u'sourceDictionary': u'ahd-legacy',
-  u'text': u'The flesh of a slaughtered full-grown steer, bull, ox, or cow.',
-  u'word': u'beef'},
- {u'partOfSpeech': u'noun',
-  u'score': 0.0,
-  u'sequence': u'2',
-  u'sourceDictionary': u'ahd-legacy',
-  u'text': u'Informal   Human muscle; brawn.',
-  u'word': u'beef'},
- {u'partOfSpeech': u'noun',
-  u'score': 0.0,
-  u'sequence': u'3',
-  u'sourceDictionary': u'ahd-legacy',
-  u'text': u'Slang   A complaint.',
-  u'word': u'beef'},
- {u'partOfSpeech': u'verb-intransitive',
-  u'score': 0.0,
-  u'sequence': u'4',
-  u'sourceDictionary': u'ahd-legacy',
-  u'text': u'Slang   To complain.',
-  u'word': u'beef'},
- {u'partOfSpeech': u'phrasal-verb',
-  u'score': 0.0,
-  u'sequence': u'5',
-  u'sourceDictionary': u'ahd-legacy',
-  u'text': u'beef up  Informal   To make or become greater or stronger:  beef up the defense budget. ',
-  u'word': u'beef'}]
-
+Place the `wordnik` folder that you downloaded somewhere where it can be accessed by your scripts. Create a new API connection as follows:
 
 ```
+import sys
+# Put the full path to the wordnik/api directory here
+sys.path.append('/path/to/wordnik/api')
 
-### Classes ###
+from APIClient import APIClient
+import model
 
-``` python 
-class Wordnik(object):
-    
-    """
-    A generic Wordnik object. Use me to interact with the Wordnik API.
-    
-    All of my methods can be called in multiple ways. All positional
-    arguments passed into one of my methods (with the exception of "format")
-    will be substituted for the correponding path parameter, if possible.
-    For example, consider the "get_word_examples" method. The URI path is:
-    
-    /word.{format}/{word}/examples
-    
-    So we can skip format (default format is JSON) and infer that the first
-    positional argument is the word we want examples for. Hence:
-    
-    Wordnik.word_get_examples('cat')
-    
-    All other (non-path) arguments are keyword arguments. The "format"
-    paramater can be passed in this way as well. Hence:
-    
-    Wordnik.word_get_examples('cat', format='xml', limit=500)
-    
-    In the case where you're making a POST, you will need a "body" keyword:
-    
-    Wordnik.word_list_put(wordListId=1234, body="Some HTTP body")    
-    """
-    
-    
-    def __init__(self, api_key=None, username=None, password=None, beta=False):
-        """
-        Initialize a Wordnik object. You must pass in an API key when
-        you make a new Wordnik. We don't validate the API key until the
-        first call against the API is made, at which point you'll find
-        out if it's good.
-        
-        If you also pass in a username and password, we will try to get an
-        auth token so you can use the Wordnik authenticated methods.
-        Alternatively, you can call Wordnik.authenticate(user, pass)
-        """
+api_key = 'YOUR API KEY HERE'
 
-    def multi(self, calls, **kwargs):
-        """Multiple calls, batched. This is a "special case" method
-        in that it's not automatically generated from the API documentation.
-        That's because, well, it's undocumented. Here's how you use it:
-        
-        Wordnik.multi( [call1, call2, call3 ], **kwargs)
-        
-        where each "call" is (word, resource, {param1: value1, ...} )
-        So we could form a batch call like so:
-        
-        calls = [("dog","examples"),("cat","definitions",{"limit":500})]
-        
-        Wordnik.multi(calls, format="xml")
-        
-        """
-
-    def authenticate(self, username, password):
-        """A convenience method to get an auth token in case the object was 
-        not instantiated with a username and a password.
-        """
-
-    
+my_client = APIClient(api_key, 'http://api.wordnik.com/v4')
 ```
-### Exceptions ###
 
-``` python
+You'll want to edit those lines to reflect the full path to the `wordnik/api` folder you downloaded, and to use your own personal API key.
 
-class RestfulError(Exception):
-    """Raised when response from REST API indicates an error has occurred."""
+Calling a Method
 
-class NoAPIKey(Exception):
-    """Raised if we don't get an API key."""
-
-class MissingParameters(Exception):
-    """Raised if we try to call an API method with required parameters missing"""
+Once you have a client set up, you need to instantiate an API object for whichever category or categories of items you are interested in working with. For example, to work with the `word` API and apply the method `getTopExample` method, you can do the following:
 
 ```
+from WordAPI import WordAPI
+wordAPI = WordAPI(my_client)
+
+example = wordAPI.getTopExample('irony')
+print example.text
+```
+
+To find out what arguments the method expects, consult the online, interactive documentation at http://developer.wordnik.com/docs , and also check out the method definitions in `wordnik/api/word.php`. You can find out what fields to expect in the return value again by using the interactive docs, or by looking at the object which is returned by the method. In this case, the documentation in `WordAPI.py` shows that `getTopExample` returns an instance of `Example`, so you would examine that class in `wordnik/model/Example.py`.
+
+Some methods like `getTopExample` take a few arguments corresponding to different method parameters. Some of our more complex methods instead take an input object as their parameter. This object is a container for the values for all of the various paremeters the method accepts. To use a method of this sort, first you instantiate its input object and then set whatever values you desire for the properties of that object, which correspond to the method parameters you can see in the online docs. You can find out the class of the input object you need to instantiate by examining the argument in the method definition.
+
+Let's see an example using the `getDefinitions` method. Examining its definition in `WordAPI.php`:
+
+```
+	def getDefinitions(self, wordDefinitionsInput=None, ):
+```
+
+we see that it takes `wordDefinitionsInput` as its input, so we'll first instantiate an object of class `WordDefinitionsInput`.
+
+```
+input = model.WordDefinitionsInput.WordDefinitionsInput()
+```
+
+Here `word` is a mandatory argument to the `getDefinitions` method, so we make sure to set that property on the input object after instantiating it. We'll also set a limit of 1, to get back a single definition, and let's also specify that we want a definition for our word when used as a verb.
+
+```
+input.word = 'tree'
+input.limit = 1
+input.partOfSpeech = 'verb'
+definition = wordAPI.getDefinitions(input) 
+```
+
+The variable `$definition` is now an instance of the `Definition` class defined in `wordnik/model/Definition.py`, as indicated in the documentation for `getDefinition`. It has all the properties that you'll see in the response body for that method call if you invoke it from the online documentation.
