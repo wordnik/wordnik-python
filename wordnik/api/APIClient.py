@@ -4,17 +4,12 @@ server communication, and is invariant across implementations. Specifics of
 the methods and models for each application are generated from the Swagger
 templates."""
 
-import sys
-import os
 import re
 import urllib
 import urllib2
-import httplib
 import json
 
-sys.path.append(os.path.dirname(os.path.abspath(__file__)) + '/../')
-import model
-
+import wordnik.model as model
 
 class APIClient:
     """Generic API client for Swagger client library builds"""
