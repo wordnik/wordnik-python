@@ -9,18 +9,18 @@ Place the `wordnik` folder that you downloaded somewhere where it can be accesse
 
 ```
 import sys
-# Put the full path to the wordnik/api directory here
-sys.path.append('/path/to/wordnik/api')
+# Put the full path to the directory containing the wordnik directory here
+sys.path.append('/parent/path')
 
-from APIClient import APIClient
-import model
+from wordnik.api.APIClient import APIClient
+import wordnik.model
 
 api_key = 'YOUR API KEY HERE'
 
 my_client = APIClient(api_key, 'http://api.wordnik.com/v4')
 ```
 
-You'll want to edit those lines to reflect the full path to the `wordnik/api` folder you downloaded, and to use your own personal API key.
+You'll want to edit those lines to reflect the full path to where you extracted the `wordnik` folder you downloaded, and to use your own personal API key.
 
 Calling a Method
 -----
@@ -28,7 +28,7 @@ Calling a Method
 Once you have a client set up, you need to instantiate an API object for whichever category or categories of items you are interested in working with. For example, to work with the `word` API and apply the method `getTopExample` method, you can do the following:
 
 ```
-from WordAPI import WordAPI
+from wordnik.api.WordAPI import WordAPI
 wordAPI = WordAPI(my_client)
 
 example = wordAPI.getTopExample('irony')
@@ -48,7 +48,7 @@ Let's see an example using the `getDefinitions` method. Examining its definition
 we see that it takes `wordDefinitionsInput` as its input, so we'll first instantiate an object of class `WordDefinitionsInput`.
 
 ```
-input = model.WordDefinitionsInput.WordDefinitionsInput()
+input = wordnik.model.WordDefinitionsInput.WordDefinitionsInput()
 ```
 
 Here `word` is a mandatory argument to the `getDefinitions` method, so we make sure to set that property on the input object after instantiating it. We'll also set a limit of 1, to get back a single definition, and let's also specify that we want a definition for our word when used as a verb.
@@ -57,7 +57,7 @@ Here `word` is a mandatory argument to the `getDefinitions` method, so we make s
 input.word = 'tree'
 input.limit = 1
 input.partOfSpeech = 'verb'
-definition = wordAPI.getDefinitions(input) 
+definition = wordAPI.getDefinitions(input)
 ```
 
 The variable `$definition` is now an instance of the `Definition` class defined in `wordnik/model/Definition.py`, as indicated in the documentation for `getDefinition`. It has all the properties that you'll see in the response body for that method call if you invoke it from the online documentation.
