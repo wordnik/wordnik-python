@@ -8,6 +8,7 @@ You can install the Wordnik API client using either `easy_install` or `pip`:
 
 ```
 easy_install wordnik
+
 pip install wordnik
 ```
 
@@ -60,13 +61,17 @@ we see that it takes `wordDefinitionsInput` as its input, so we'll first instant
 input = wordnik.model.WordDefinitionsInput.WordDefinitionsInput()
 ```
 
-Here `word` is a mandatory argument to the `getDefinitions` method, so we make sure to set that property on the input object after instantiating it. We'll also set a limit of 1, to get back a single definition, and let's also specify that we want a definition for our word when used as a verb.
+Here `word` is a mandatory argument to the `getDefinitions` method, so we make sure to set that property on the input object after instantiating it. We'll also set a limit of 3 definitions.
 
 ```
 input.word = 'tree'
-input.limit = 1
-input.partOfSpeech = 'verb'
-definition = wordAPI.getDefinitions(input)
+input.limit = 3
+definitions = wordAPI.getDefinitions(input)
 ```
 
-The variable `$definition` is now an instance of the `Definition` class defined in `wordnik/model/Definition.py`, as indicated in the documentation for `getDefinition`. It has all the properties that you'll see in the response body for that method call if you invoke it from the online documentation.
+The variable `$definitions` is now a list of instances of the `Definition` class defined in `wordnik/model/Definition.py`, as indicated in the documentation for `getDefinition`. These instances have all the properties that you'll see in the response body for that method call if you invoke it from the online documentation. For example, you can loop through and print all the definition texts:
+
+```
+for definition in definitions:
+    print definition.text
+```
