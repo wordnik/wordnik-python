@@ -4,12 +4,21 @@ This client has been generated using the Swagger code generator, which builds ro
 
 Basic Setup
 -----
-
-Place the `wordnik` folder that you downloaded somewhere where it can be accessed by your scripts. Create a new API connection as follows:
+You can install the Wordnik API client using either `easy_install` or `pip`:
 
 ```
+easy_install wordnik
+pip install wordnik
+```
+
+Or you can download this repository and place the `wordnik` folder somewhere where it can be accessed by your scripts.
+
+Create a new API connection as follows:
+
+```
+# If you installed manually, put the full path to the directory containing
+# the wordnik directory into your sys.path, if necessary
 import sys
-# Put the full path to the directory containing the wordnik directory here
 sys.path.append('/parent/path')
 
 from wordnik.api.APIClient import APIClient
