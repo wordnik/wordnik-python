@@ -377,7 +377,7 @@ class WordAPI(object):
             list<Related> -- an instance of Related"""
 
         # Parse inputs
-        resourcePath = '/word.{format}/{word}/related'
+        resourcePath = '/word.{format}/{word}/relatedWords'
         resourcePath = resourcePath.replace('{format}', 'json')
         method = 'GET'
 
