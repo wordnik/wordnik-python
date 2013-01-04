@@ -10,14 +10,14 @@ If you need help after reading the below, please find us on Google Groups at htt
 
 You should be able to install using `easy_install` or `pip` in the usual ways:
 
-```
+```sh
 $ easy_install wordnik
 $ pip install wordnik
 ```
 
 Or just clone this repository and place the `wordnik` folder that you downloaded somewhere where it can be accessed by your scripts. Create a connection as follows:
 
-```
+```python
 from wordnik import *
 apiUrl = 'http://api.wordnik.com/v4'
 apiKey = 'YOUR API KEY HERE'
@@ -30,7 +30,7 @@ You'll want to substitute your own personal API key, of course. If you don't hav
 
 Once you have a client set up, you need to instantiate an API object for whichever category or categories of items you are interested in working with. For example, to work with the `word` API and apply the method `getTopExample` method, you can do the following:
 
-```
+```python
 wordApi = WordApi.WordApi(client)
 example = wordApi.getTopExample('irony')
 print example.text
@@ -42,7 +42,7 @@ You can find out what fields to expect in the return value by using the interact
 
 Some methods, like `getDefinitions`, also take optional keyword parameters which should be specified by name. Again, these are shown in the online documentation and in the method defintions.
 
-```
+```python
 wordApi = WordApi.WordApi(client)
 definitions = wordApi.getDefinitions('badger',
                                      partOfSpeech='verb',
@@ -66,7 +66,7 @@ $ export PASSWORD=the user's password
 
 The tests can be run as follows:
 
-```
+```sh
 $ python tests/BaseApiTest.py
 ```
 
