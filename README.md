@@ -1,77 +1,72 @@
-Wordnik Python Client
-==========
-This client has been generated using the Swagger code generator, which builds robust API clients and beautiful API documentation automatically. If you'd like to learn more about Swagger, visit http://swagger.wordnik.com/ (but you don't need to know anything about Swagger to simply use this API client for Wordnik, this page will tell get you up to speed on that account).
+# Python 2 client for Wordnik.com API
 
-Basic Setup
------
-You can install the Wordnik API client using either `easy_install` or `pip`:
+## Overview
 
-```
-easy_install wordnik
+This is a Python 2 client for the Wordnik.com v4 API. For more information, see http://developer.wordnik.com/ . This client has been generated using the Swagger code generator, which builds robust API clients and beautiful API documentation automatically. If you'd like to learn more about Swagger, visit http://swagger.wordnik.com/ (but you don't need to know anything about Swagger to simply use this API client for Wordnik, this page will tell get you up to speed on that account).
 
-pip install wordnik
-```
+If you need help after reading the below, please find us on Google Groups at https://groups.google.com/group/wordnik-api , @wordnikapi on Twitter, or on #wordnik on IRC.
 
-Or you can download this repository and place the `wordnik` folder somewhere where it can be accessed by your scripts.
+## Basic Setup
 
-Create a new API connection as follows:
+You should be able to install using `easy_install` or `pip` in the usual ways:
 
 ```
-# If you installed manually, put the full path to the directory containing
-# the wordnik directory into your sys.path, if necessary
-import sys
-sys.path.append('/parent/path')
-
-from wordnik.api.APIClient import APIClient
-import wordnik.model
-
-api_key = 'YOUR API KEY HERE'
-
-my_client = APIClient(api_key, 'http://api.wordnik.com/v4')
+$ easy_install wordnik
+$ pip install wordnik
 ```
 
-You'll want to edit those lines to reflect the full path to where you extracted the `wordnik` folder you downloaded, and to use your own personal API key.
+Or just clone this repository and place the `wordnik` folder that you downloaded somewhere where it can be accessed by your scripts. Create a connection as follows:
 
-Calling a Method
------
+```
+from wordnik import *
+apiUrl = 'http://api.wordnik.com/v4'
+apiKey = 'YOUR API KEY HERE'
+client = swagger.ApiClient(apiKey, apiUrl)
+```
+
+You'll want to substitute your own personal API key, of course. If you don't have an API key yet, you can get one here: http://developer.wordnik.com/ .
+
+## Calling a Method
 
 Once you have a client set up, you need to instantiate an API object for whichever category or categories of items you are interested in working with. For example, to work with the `word` API and apply the method `getTopExample` method, you can do the following:
 
 ```
-from wordnik.api.WordAPI import WordAPI
-wordAPI = WordAPI(my_client)
-
-example = wordAPI.getTopExample('irony')
+wordApi = WordApi.WordApi(client)
+example = wordApi.getTopExample('irony')
 print example.text
 ```
 
-To find out what arguments the method expects, consult the online, interactive documentation at http://developer.wordnik.com/docs , and also check out the method definitions in `wordnik/api/word.php`. You can find out what fields to expect in the return value again by using the interactive docs, or by looking at the object which is returned by the method. In this case, the documentation in `WordAPI.py` shows that `getTopExample` returns an instance of `Example`, so you would examine that class in `wordnik/model/Example.py`.
+To find out what arguments the method expects, consult the online, interactive documentation at http://developer.wordnik.com/docs , and also check out the method definitions in `wordnik/WordApi.py`.
 
-Some methods like `getTopExample` take a few arguments corresponding to different method parameters. Some of our more complex methods instead take an input object as their parameter. This object is a container for the values for all of the various paremeters the method accepts. To use a method of this sort, first you instantiate its input object and then set whatever values you desire for the properties of that object, which correspond to the method parameters you can see in the online docs. You can find out the class of the input object you need to instantiate by examining the argument in the method definition.
+You can find out what fields to expect in the return value by using the interactive docs. You can also check out the tests in the `tests/` folder in this repository; each method is shown and tested there. In this case, the documentation in `WordAPI.py` shows that `getTopExample` returns an instance of `Example`, so you would examine that class in `wordnik/models/Example.py`.
 
-Let's see an example using the `getDefinitions` method. Examining its definition in `WordAPI.php`:
-
-```
-	def getDefinitions(self, wordDefinitionsInput=None, ):
-```
-
-we see that it takes `wordDefinitionsInput` as its input, so we'll first instantiate an object of class `WordDefinitionsInput`.
+Some methods, like `getDefinitions`, also take optional keyword parameters which should be specified by name. Again, these are shown in the online documentation and in the method defintions.
 
 ```
-input = wordnik.model.WordDefinitionsInput.WordDefinitionsInput()
+wordApi = WordApi.WordApi(client)
+definitions = wordApi.getDefinitions('badger',
+                                     partOfSpeech='verb',
+                                     sourceDictionaries='wiktionary',
+                                     limit=1)
+print definitions[0].text
 ```
 
-Here `word` is a mandatory argument to the `getDefinitions` method, so we make sure to set that property on the input object after instantiating it. We'll also set a limit of 3 definitions.
+The variable `definitions` is now an list of instances of the `Definition` class defined in `wordnik/models/Definition.py`, as indicated in the documentation for `getDefinition`.
+
+
+## Testing
+
+The tests require you to set three environment varibales:
+
+```sh
+$ export API_KEY=your api key
+$ export USER_NAME=some wordnik.com username
+$ export PASSWORD=the user's password
+```
+
+The tests can be run as follows:
 
 ```
-input.word = 'tree'
-input.limit = 3
-definitions = wordAPI.getDefinitions(input)
+$ python tests/BaseApiTest.py
 ```
 
-The variable `$definitions` is now a list of instances of the `Definition` class defined in `wordnik/model/Definition.py`, as indicated in the documentation for `getDefinition`. These instances have all the properties that you'll see in the response body for that method call if you invoke it from the online documentation. For example, you can loop through and print all the definition texts:
-
-```
-for definition in definitions:
-    print definition.text
-```
