@@ -1,8 +1,8 @@
-# Python 2 client for Wordnik.com API
+# Python 2.7 client for Wordnik.com API
 
 ## Overview
 
-This is a Python 2 client for the Wordnik.com v4 API. For more information, see http://developer.wordnik.com/ . This client has been generated using the Swagger code generator, which builds robust API clients and beautiful API documentation automatically. If you'd like to learn more about Swagger, visit http://swagger.wordnik.com/ (but you don't need to know anything about Swagger to simply use this API client for Wordnik, this page will tell get you up to speed on that account).
+This is a Python 2.7 client for the Wordnik.com v4 API. For more information, see http://developer.wordnik.com/ . This client has been generated using the Swagger code generator, which builds robust API clients and beautiful API documentation automatically. If you'd like to learn more about Swagger, visit http://swagger.wordnik.com/ (but you don't need to know anything about Swagger to simply use this API client for Wordnik, this page will tell get you up to speed on that account).
 
 If you need help after reading the below, please find us on Google Groups at https://groups.google.com/group/wordnik-api , @wordnikapi on Twitter, or on #wordnik on IRC.
 
