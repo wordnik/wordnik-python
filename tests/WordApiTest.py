@@ -1,4 +1,5 @@
 #!/usr/bin/env python
+# -*- coding: utf-8 -*-
 
 import sys
 import unittest
@@ -43,6 +44,11 @@ class WordApiTest(BaseApiTest):
         assert res, 'null getDefinitions result'
         assert len(res) == 1, 'should have 1 definition'
 
+    def testGetDefinitionsUtf8Word(self):
+        res = self.wordApi.getDefinitions('élan', limit=10)
+        assert res, 'null getDefinitions result'
+        assert res[0].word == 'élan'.decode('utf8'), 'word should be élan'
+
     def testGetExamples(self):
         res = self.wordApi.getExamples('cat', limit=5)
         assert res, 'null getExamples result'
@@ -70,6 +76,12 @@ class WordApiTest(BaseApiTest):
 
     def testGetRelatedWords(self):
         res = self.wordApi.getRelatedWords('cat')
+        assert res, 'null getRelatedWords result'
+        for related in res:
+            assert len(related.words) <= 10, 'should have <= 10 related words'
+
+    def testGetRelatedWordsWithUtf8(self):
+        res = self.wordApi.getRelatedWords('Europe')
         assert res, 'null getRelatedWords result'
         for related in res:
             assert len(related.words) <= 10, 'should have <= 10 related words'

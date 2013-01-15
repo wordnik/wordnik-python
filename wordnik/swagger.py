@@ -144,7 +144,9 @@ class ApiClient:
             else:  # not a native type, must be model class
                 objClass = eval(objClass + '.' + objClass)
 
-        if objClass in [int, long, float, dict, list, str, bool]:
+        if objClass == str:
+            return obj
+        elif objClass in [int, long, float, dict, list, bool]:
             return objClass(obj)
         elif objClass == datetime:
             # Server will always return a time stamp in UTC, but with
