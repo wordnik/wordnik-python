@@ -1,4 +1,5 @@
 #!/usr/bin/env python
+# -*- coding: utf-8 -*-
 
 import sys
 import unittest
@@ -55,7 +56,6 @@ class WordListApiTest(BaseApiTest):
         assert res.description == description, 'did not update wordlist'
 
     def testAddWordsToWordList(self):
-
         from wordnik.models import StringValue
         wordsToAdd = []
         word1 = StringValue.StringValue()
@@ -96,6 +96,50 @@ class WordListApiTest(BaseApiTest):
                                                 self.authToken)
         listSet = set([word.word for word in res])
         addedSet = set(["delicious", "tasty", "scrumptious"])
+        assert len(listSet.intersection(addedSet)) == 0, 'did not get removed words'
+
+
+    def testAddUnicodeWordsToWordList(self):
+        from wordnik.models import StringValue
+        wordsToAdd = []
+        word1 = StringValue.StringValue()
+        word1.word = u"délicieux"
+        wordsToAdd.append(word1)
+        word2 = StringValue.StringValue()
+        word2.word = u"νόστιμος"
+        wordsToAdd.append(word2)
+        word3 = StringValue.StringValue()
+        word3.word = u"великолепный"
+        wordsToAdd.append(word3)
+        self.wordListApi.addWordsToWordList(self.existingList.permalink,
+                                        self.authToken, body=wordsToAdd)
+
+        res = self.wordListApi.getWordListWords(self.existingList.permalink,
+                                                self.authToken)
+        listSet = set([word.word for word in res])
+        addedSet = set([u"délicieux", u"νόστιμος", u"великолепный"])
+        assert len(listSet.intersection(addedSet)) == 3, 'did not get added words'
+
+    def testDeleteUnicodeWordsFromList(self):
+        from wordnik.models import StringValue
+        wordsToRemove = []
+        word1 = StringValue.StringValue()
+        word1.word = u"délicieux"
+        wordsToRemove.append(word1)
+        word2 = StringValue.StringValue()
+        word2.word = u"νόστιμος"
+        wordsToRemove.append(word2)
+        word3 = StringValue.StringValue()
+        word3.word = u"великолепный"
+        wordsToRemove.append(word3)
+        self.wordListApi.deleteWordsFromWordList(self.existingList.permalink,
+                                                 self.authToken,
+                                                 body=wordsToRemove)
+
+        res = self.wordListApi.getWordListWords(self.existingList.permalink,
+                                                self.authToken)
+        listSet = set([word.word for word in res])
+        addedSet = set([u"délicieux", u"νόστιμος", u"великолепный"])
         assert len(listSet.intersection(addedSet)) == 0, 'did not get removed words'
 
 
