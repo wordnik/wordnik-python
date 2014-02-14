@@ -97,7 +97,7 @@ class ApiClient:
 
         if not obj:
             return None
-        elif type(obj) in [str, int, long, float, bool]:
+        elif type(obj) in [str, int, long, float, bool, unicode]:
             return obj
         elif type(obj) == list:
             return [self.sanitizeForSerialization(subObj) for subObj in obj]
