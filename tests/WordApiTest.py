@@ -49,6 +49,11 @@ class WordApiTest(BaseApiTest):
         assert res, 'null getDefinitions result'
         assert res[0].word == 'élan'.decode('utf8'), 'word should be élan'
 
+    def testGetDefinitionsUnicodeWord(self):
+        res = self.wordApi.getDefinitions(u"élan", limit=10)
+        assert res, 'null getDefinitions result'
+        assert res[0].word == 'élan'.decode('utf8'), 'word should be élan'
+
     def testGetExamples(self):
         res = self.wordApi.getExamples('cat', limit=5)
         assert res, 'null getExamples result'

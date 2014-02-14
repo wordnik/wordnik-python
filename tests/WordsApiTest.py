@@ -1,4 +1,5 @@
 #!/usr/bin/env python
+# -*- coding: utf-8 -*-
 
 import sys
 import unittest
@@ -25,6 +26,18 @@ class WordsApiTest(BaseApiTest):
 
     def testReverseDictionary(self):
         res = self.wordsApi.reverseDictionary("hairy")
+        assert res, 'null reverseDictionary result'
+        assert res.totalResults != 0, 'should not have 0 results'
+        assert len(res.results) != 0, 'should not have 0 results'
+
+    def testReverseDictionaryUtf8(self):
+        res = self.wordsApi.reverseDictionary("élan")
+        assert res, 'null reverseDictionary result'
+        assert res.totalResults != 0, 'should not have 0 results'
+        assert len(res.results) != 0, 'should not have 0 results'
+
+    def testReverseDictionaryUnicode(self):
+        res = self.wordsApi.reverseDictionary(u"élan")
         assert res, 'null reverseDictionary result'
         assert res.totalResults != 0, 'should not have 0 results'
         assert len(res.results) != 0, 'should not have 0 results'

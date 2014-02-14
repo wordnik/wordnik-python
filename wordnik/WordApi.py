@@ -173,7 +173,7 @@ class WordApi(object):
         if ('includeTags' in params):
             queryParams['includeTags'] = self.apiClient.toPathValue(params['includeTags'])
         if ('word' in params):
-            replacement = str(self.apiClient.toPathValue(params['word']))
+            replacement = self.apiClient.toPathValue(params['word']).encode('utf8')
             resourcePath = resourcePath.replace('{' + 'word' + '}',
                                                 replacement)
         postData = (params['body'] if 'body' in params else None)

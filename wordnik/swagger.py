@@ -89,6 +89,8 @@ class ApiClient:
         """
         if type(obj) == list:
             return urllib.quote(','.join(obj))
+        elif type(obj) == unicode:
+            return urllib.quote(obj.encode('utf8'))
         else:
             return urllib.quote(str(obj))
 
@@ -99,6 +101,8 @@ class ApiClient:
             return None
         elif type(obj) in [str, int, long, float, bool, unicode]:
             return obj
+        elif type(obj) == unicode:
+            return obj.encode('utf8')
         elif type(obj) == list:
             return [self.sanitizeForSerialization(subObj) for subObj in obj]
         elif type(obj) == datetime.datetime:
