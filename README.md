@@ -56,7 +56,7 @@ The variable `definitions` is now an list of instances of the `Definition` class
 
 ## Testing
 
-The tests require you to set three environment varibales:
+The tests require you to set three environment variables:
 
 ```sh
 $ export API_KEY=your api key
